@@ -194,38 +194,72 @@ void __SMACK_decls() {
   D("function {:builtin \"div\"} $div(i1: int, i2: int) returns (int);");
   D("function {:builtin \"mod\"} $mod(i1: int, i2: int) returns (int);");
   D("function {:builtin \"rem\"} $rem(i1: int, i2: int) returns (int);");
-  DECLARE_EACH_INT_TYPE(BUILTIN_BINARY_OP, $sdiv, div)
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_OP, $smod, {if ((i1 >= 0 && i2 >= 0) || (i1 < 0 && i2 < 0)) then $mod(i1,i2) else -$mod(i1,i2)})
-  DECLARE_EACH_INT_TYPE(BUILTIN_BINARY_OP, $srem, rem)
 
-  DECLARE(INLINE_UNARY_OP, i64, $s2u, { if i < 0 then $mod(i,LIMIT_64) else i });
-  DECLARE(INLINE_UNARY_OP, i32, $s2u, { if i < 0 then $mod(i,LIMIT_32) else i });
-  DECLARE(INLINE_UNARY_OP, i16, $s2u, { if i < 0 then $mod(i,LIMIT_16) else i });
-  DECLARE(INLINE_UNARY_OP, i8,  $s2u, { if i < 0 then $mod(i,LIMIT_8) else i });
-  DECLARE(INLINE_UNARY_OP, i1,  $s2u, { if i < 0 then $mod(i,LIMIT_1) else i });
+  DECLARE(INLINE_UNARY_OP, i64, $tou, { if i >= 0 && i < LIMIT_64 then i else $mod(i,LIMIT_64) });
+  DECLARE(INLINE_UNARY_OP, i32, $tou, { if i >= 0 && i < LIMIT_32 then i else $mod(i,LIMIT_32) });
+  DECLARE(INLINE_UNARY_OP, i16, $tou, { if i >= 0 && i < LIMIT_16 then i else $mod(i,LIMIT_16) });
+  DECLARE(INLINE_UNARY_OP, i8, $tou, { if i >= 0 && i < LIMIT_8 then i else $mod(i,LIMIT_8) });
+  DECLARE(INLINE_UNARY_OP, i1, $tou, { if i >= 0 && i < LIMIT_1 then i else $mod(i,LIMIT_1) });
 
-  DECLARE(INLINE_UNARY_OP, i64, $u2s, {if i < LIMIT_63 then i else i - LIMIT_64});
-  DECLARE(INLINE_UNARY_OP, i32, $u2s, {if i < LIMIT_31 then i else i - LIMIT_32});
-  DECLARE(INLINE_UNARY_OP, i16, $u2s, {if i < LIMIT_15 then i else i - LIMIT_16});
-  DECLARE(INLINE_UNARY_OP, i8,  $u2s, {if i < LIMIT_7 then i else i - LIMIT_8});
-  DECLARE(INLINE_UNARY_OP, i1,  $u2s, {i});
+  DECLARE(INLINE_UNARY_OP, i64, $tos, { if i >= -LIMIT_63 && i < LIMIT_63 then i else $mod(i+LIMIT_63,LIMIT_64) - LIMIT_63 });
+  DECLARE(INLINE_UNARY_OP, i32, $tos, { if i >= -LIMIT_31 && i < LIMIT_31 then i else $mod(i+LIMIT_31,LIMIT_32) - LIMIT_31 });
+  DECLARE(INLINE_UNARY_OP, i16, $tos, { if i >= -LIMIT_15 && i < LIMIT_15 then i else $mod(i+LIMIT_15,LIMIT_16) - LIMIT_15 });
+  DECLARE(INLINE_UNARY_OP, i8, $tos, { if i >= -LIMIT_7 && i < LIMIT_7 then i else $mod(i+LIMIT_7,LIMIT_8) - LIMIT_7 });
+  DECLARE(INLINE_UNARY_OP, i1, $tos, { if i >= -1 && i < 1 then i else $mod(i+1,LIMIT_1) - 1 });
 
-  DECLARE(INLINE_BINARY_OP, i64, $udiv, { $div($s2u.i64(i1),$s2u.i64(i2)) });
-  DECLARE(INLINE_BINARY_OP, i32, $udiv, { $div($s2u.i32(i1),$s2u.i32(i2)) });
-  DECLARE(INLINE_BINARY_OP, i16, $udiv, { $div($s2u.i16(i1),$s2u.i16(i2)) });
-  DECLARE(INLINE_BINARY_OP, i8,  $udiv, { $div($s2u.i8(i1),$s2u.i8(i2)) });
-  DECLARE(INLINE_BINARY_OP, i1,  $udiv, { $div($s2u.i1(i1),$s2u.i1(i2)) });
+  DECLARE(INLINE_BINARY_OP, i64, $sdiv, { $div($tos.i64(i1),$tos.i64(i2)) });
+  DECLARE(INLINE_BINARY_OP, i32, $sdiv, { $div($tos.i32(i1),$tos.i32(i2)) });
+  DECLARE(INLINE_BINARY_OP, i16, $sdiv, { $div($tos.i16(i1),$tos.i16(i2)) });
+  DECLARE(INLINE_BINARY_OP, i8,  $sdiv, { $div($tos.i8(i1),$tos.i8(i2)) });
+  DECLARE(INLINE_BINARY_OP, i1,  $sdiv, { $div($tos.i1(i1),$tos.i1(i2)) });
 
-  DECLARE(INLINE_BINARY_OP, i64, $urem, { $rem($s2u.i64(i1),$s2u.i64(i2)) });
-  DECLARE(INLINE_BINARY_OP, i32, $urem, { $rem($s2u.i32(i1),$s2u.i32(i2)) });
-  DECLARE(INLINE_BINARY_OP, i16, $urem, { $rem($s2u.i16(i1),$s2u.i16(i2)) });
-  DECLARE(INLINE_BINARY_OP, i8,  $urem, { $rem($s2u.i8(i1),$s2u.i8(i2)) });
-  DECLARE(INLINE_BINARY_OP, i1,  $urem, { $rem($s2u.i1(i1),$s2u.i1(i2)) });
+  DECLARE(INLINE_BINARY_OP, i64, $smod, { $mod($tos.i64(i1),$tos.i64(i2)) });
+  DECLARE(INLINE_BINARY_OP, i32, $smod, { $mod($tos.i32(i1),$tos.i32(i2)) });
+  DECLARE(INLINE_BINARY_OP, i16, $smod, { $mod($tos.i16(i1),$tos.i16(i2)) });
+  DECLARE(INLINE_BINARY_OP, i8,  $smod, { $mod($tos.i8(i1),$tos.i8(i2)) });
+  DECLARE(INLINE_BINARY_OP, i1,  $smod, { $mod($tos.i1(i1),$tos.i1(i2)) });
 
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_OP, $min, {if i1 < i2 then i1 else i2})
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_OP, $max, {if i1 > i2 then i1 else i2})
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_OP, $umin, {if i1 < i2 then i1 else i2})
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_OP, $umax, {if i1 > i2 then i1 else i2})
+  DECLARE(INLINE_BINARY_OP, i64, $srem, { $rem($tos.i64(i1),$tos.i64(i2)) });
+  DECLARE(INLINE_BINARY_OP, i32, $srem, { $rem($tos.i32(i1),$tos.i32(i2)) });
+  DECLARE(INLINE_BINARY_OP, i16, $srem, { $rem($tos.i16(i1),$tos.i16(i2)) });
+  DECLARE(INLINE_BINARY_OP, i8,  $srem, { $rem($tos.i8(i1),$tos.i8(i2)) });
+  DECLARE(INLINE_BINARY_OP, i1,  $srem, { $rem($tos.i1(i1),$tos.i1(i2)) });
+
+  DECLARE(INLINE_BINARY_OP, i64, $udiv, { $div($tou.i64(i1),$tou.i64(i2)) });
+  DECLARE(INLINE_BINARY_OP, i32, $udiv, { $div($tou.i32(i1),$tou.i32(i2)) });
+  DECLARE(INLINE_BINARY_OP, i16, $udiv, { $div($tou.i16(i1),$tou.i16(i2)) });
+  DECLARE(INLINE_BINARY_OP, i8,  $udiv, { $div($tou.i8(i1),$tou.i8(i2)) });
+  DECLARE(INLINE_BINARY_OP, i1,  $udiv, { $div($tou.i1(i1),$tou.i1(i2)) });
+
+  DECLARE(INLINE_BINARY_OP, i64, $urem, { $rem($tou.i64(i1),$tou.i64(i2)) });
+  DECLARE(INLINE_BINARY_OP, i32, $urem, { $rem($tou.i32(i1),$tou.i32(i2)) });
+  DECLARE(INLINE_BINARY_OP, i16, $urem, { $rem($tou.i16(i1),$tou.i16(i2)) });
+  DECLARE(INLINE_BINARY_OP, i8,  $urem, { $rem($tou.i8(i1),$tou.i8(i2)) });
+  DECLARE(INLINE_BINARY_OP, i1,  $urem, { $rem($tou.i1(i1),$tou.i1(i2)) });
+
+  DECLARE(INLINE_BINARY_OP, i64, $min, {if $tos.i64(i1) < $tos.i64(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i32, $min, {if $tos.i32(i1) < $tos.i32(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i16, $min, {if $tos.i16(i1) < $tos.i16(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i8, $min, {if $tos.i8(i1) < $tos.i8(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i1, $min, {if $tos.i1(i1) < $tos.i1(i2) then i1 else i2});
+
+  DECLARE(INLINE_BINARY_OP, i64, $max, {if $tos.i64(i1) > $tos.i64(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i32, $max, {if $tos.i32(i1) > $tos.i32(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i16, $max, {if $tos.i16(i1) > $tos.i16(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i8, $max, {if $tos.i8(i1) > $tos.i8(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i1, $max, {if $tos.i1(i1) > $tos.i1(i2) then i1 else i2});
+
+  DECLARE(INLINE_BINARY_OP, i64, $umin, {if $tou.i64(i1) < $tou.i64(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i32, $umin, {if $tou.i32(i1) < $tou.i32(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i16, $umin, {if $tou.i16(i1) < $tou.i16(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i8, $umin, {if $tou.i8(i1) < $tou.i8(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i1, $umin, {if $tou.i1(i1) < $tou.i1(i2) then i1 else i2});
+
+  DECLARE(INLINE_BINARY_OP, i64, $umax, {if $tou.i64(i1) > $tou.i64(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i32, $umax, {if $tou.i32(i1) > $tou.i32(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i16, $umax, {if $tou.i16(i1) > $tou.i16(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i8, $umax, {if $tou.i8(i1) > $tou.i8(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i1, $umax, {if $tou.i1(i1) > $tou.i1(i2) then i1 else i2});
 
   DECLARE_EACH_INT_TYPE(UNINTERPRETED_BINARY_OP, $shl)
   DECLARE_EACH_INT_TYPE(UNINTERPRETED_BINARY_OP, $lshr)
@@ -238,14 +272,54 @@ void __SMACK_decls() {
 
   DECLARE_EACH_INT_TYPE(INLINE_BINARY_PRED, $eq, i1 == i2)
   DECLARE_EACH_INT_TYPE(INLINE_BINARY_PRED, $ne, i1 != i2)
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_PRED, $ule, i1 <= i2)
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_PRED, $ult, i1 < i2)
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_PRED, $uge, i1 >= i2)
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_PRED, $ugt, i1 > i2)
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_PRED, $sle, i1 <= i2)
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_PRED, $slt, i1 < i2)
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_PRED, $sge, i1 >= i2)
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_PRED, $sgt, i1 > i2)
+
+  DECLARE(INLINE_BINARY_PRED, i64, $ule, $tou.i64(i1) <= $tou.i64(i2));
+  DECLARE(INLINE_BINARY_PRED, i32, $ule, $tou.i32(i1) <= $tou.i32(i2));
+  DECLARE(INLINE_BINARY_PRED, i16, $ule, $tou.i16(i1) <= $tou.i16(i2));
+  DECLARE(INLINE_BINARY_PRED, i8, $ule, $tou.i8(i1) <= $tou.i8(i2));
+  DECLARE(INLINE_BINARY_PRED, i1, $ule, $tou.i1(i1) <= $tou.i1(i2));
+
+  DECLARE(INLINE_BINARY_PRED, i64, $ult, $tou.i64(i1) < $tou.i64(i2));
+  DECLARE(INLINE_BINARY_PRED, i32, $ult, $tou.i32(i1) < $tou.i32(i2));
+  DECLARE(INLINE_BINARY_PRED, i16, $ult, $tou.i16(i1) < $tou.i16(i2));
+  DECLARE(INLINE_BINARY_PRED, i8, $ult, $tou.i8(i1) < $tou.i8(i2));
+  DECLARE(INLINE_BINARY_PRED, i1, $ult, $tou.i1(i1) < $tou.i1(i2));
+
+  DECLARE(INLINE_BINARY_PRED, i64, $uge, $tou.i64(i1) >= $tou.i64(i2));
+  DECLARE(INLINE_BINARY_PRED, i32, $uge, $tou.i32(i1) >= $tou.i32(i2));
+  DECLARE(INLINE_BINARY_PRED, i16, $uge, $tou.i16(i1) >= $tou.i16(i2));
+  DECLARE(INLINE_BINARY_PRED, i8, $uge, $tou.i8(i1) >= $tou.i8(i2));
+  DECLARE(INLINE_BINARY_PRED, i1, $uge, $tou.i1(i1) >= $tou.i1(i2));
+
+  DECLARE(INLINE_BINARY_PRED, i64, $ugt, $tou.i64(i1) > $tou.i64(i2));
+  DECLARE(INLINE_BINARY_PRED, i32, $ugt, $tou.i32(i1) > $tou.i32(i2));
+  DECLARE(INLINE_BINARY_PRED, i16, $ugt, $tou.i16(i1) > $tou.i16(i2));
+  DECLARE(INLINE_BINARY_PRED, i8, $ugt, $tou.i8(i1) > $tou.i8(i2));
+  DECLARE(INLINE_BINARY_PRED, i1, $ugt, $tou.i1(i1) > $tou.i1(i2));
+
+  DECLARE(INLINE_BINARY_PRED, i64, $sle, $tos.i64(i1) <= $tos.i64(i2));
+  DECLARE(INLINE_BINARY_PRED, i32, $sle, $tos.i32(i1) <= $tos.i32(i2));
+  DECLARE(INLINE_BINARY_PRED, i16, $sle, $tos.i16(i1) <= $tos.i16(i2));
+  DECLARE(INLINE_BINARY_PRED, i8, $sle, $tos.i8(i1) <= $tos.i8(i2));
+  DECLARE(INLINE_BINARY_PRED, i1, $sle, $tos.i1(i1) <= $tos.i1(i2));
+
+  DECLARE(INLINE_BINARY_PRED, i64, $slt, $tos.i64(i1) < $tos.i64(i2));
+  DECLARE(INLINE_BINARY_PRED, i32, $slt, $tos.i32(i1) < $tos.i32(i2));
+  DECLARE(INLINE_BINARY_PRED, i16, $slt, $tos.i16(i1) < $tos.i16(i2));
+  DECLARE(INLINE_BINARY_PRED, i8, $slt, $tos.i8(i1) < $tos.i8(i2));
+  DECLARE(INLINE_BINARY_PRED, i1, $slt, $tos.i1(i1) < $tos.i1(i2));
+
+  DECLARE(INLINE_BINARY_PRED, i64, $sge, $tos.i64(i1) >= $tos.i64(i2));
+  DECLARE(INLINE_BINARY_PRED, i32, $sge, $tos.i32(i1) >= $tos.i32(i2));
+  DECLARE(INLINE_BINARY_PRED, i16, $sge, $tos.i16(i1) >= $tos.i16(i2));
+  DECLARE(INLINE_BINARY_PRED, i8, $sge, $tou.i8(i1) >= $tos.i8(i2));
+  DECLARE(INLINE_BINARY_PRED, i1, $sge, $tou.i1(i1) >= $tos.i1(i2));
+
+  DECLARE(INLINE_BINARY_PRED, i64, $sgt, $tos.i64(i1) > $tos.i64(i2));
+  DECLARE(INLINE_BINARY_PRED, i32, $sgt, $tos.i32(i1) > $tos.i32(i2));
+  DECLARE(INLINE_BINARY_PRED, i16, $sgt, $tos.i16(i1) > $tos.i16(i2));
+  DECLARE(INLINE_BINARY_PRED, i8, $sgt, $tos.i8(i1) > $tos.i8(i2));
+  DECLARE(INLINE_BINARY_PRED, i1, $sgt, $tos.i1(i1) > $tos.i1(i2));
 
   D("axiom $and.i1(0,0) == 0;");
   D("axiom $and.i1(0,1) == 0;");
@@ -260,38 +334,38 @@ void __SMACK_decls() {
   D("axiom $xor.i1(1,0) == 1;");
   D("axiom $xor.i1(1,1) == 0;");
 
-  DECLARE(INLINE_CONVERSION,i64,i32,$trunc,{$u2s.i32($mod(i,LIMIT_32))});
-  DECLARE(INLINE_CONVERSION,i64,i16,$trunc,{$u2s.i16($mod(i,LIMIT_16))});
-  DECLARE(INLINE_CONVERSION,i64,i8,$trunc,{$u2s.i8($mod(i,LIMIT_8))});
-  DECLARE(INLINE_CONVERSION,i64,i1,$trunc,{$u2s.i1($mod(i,LIMIT_1))});
-  DECLARE(INLINE_CONVERSION,i32,i16,$trunc,{$u2s.i16($mod(i,LIMIT_16))});
-  DECLARE(INLINE_CONVERSION,i32,i8,$trunc,{$u2s.i8($mod(i,LIMIT_8))});
-  DECLARE(INLINE_CONVERSION,i32,i1,$trunc,{$u2s.i1($mod(i,LIMIT_1))});
-  DECLARE(INLINE_CONVERSION,i16,i8,$trunc,{$u2s.i8($mod(i,LIMIT_8))});
-  DECLARE(INLINE_CONVERSION,i16,i1,$trunc,{$u2s.i1($mod(i,LIMIT_1))});
-  DECLARE(INLINE_CONVERSION,i8,i1,$trunc,{$u2s.i1($mod(i,LIMIT_1))});
+  DECLARE(INLINE_CONVERSION,i64,i32,$trunc,{$tou.i32(i)});
+  DECLARE(INLINE_CONVERSION,i64,i16,$trunc,{$tou.i16(i)});
+  DECLARE(INLINE_CONVERSION,i64,i8,$trunc,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i64,i1,$trunc,{$tou.i1(i)});
+  DECLARE(INLINE_CONVERSION,i32,i16,$trunc,{$tou.i16(i)});
+  DECLARE(INLINE_CONVERSION,i32,i8,$trunc,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i32,i1,$trunc,{$tou.i1(i)});
+  DECLARE(INLINE_CONVERSION,i16,i8,$trunc,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i16,i1,$trunc,{$tou.i1(i)});
+  DECLARE(INLINE_CONVERSION,i8,i1,$trunc,{$tou.i1(i)});
 
-  DECLARE(INLINE_CONVERSION,i1,i8,$zext,{$s2u.i1(i)});
-  DECLARE(INLINE_CONVERSION,i1,i16,$zext,{$s2u.i1(i)});
-  DECLARE(INLINE_CONVERSION,i1,i32,$zext,{$s2u.i1(i)});
-  DECLARE(INLINE_CONVERSION,i1,i64,$zext,{$s2u.i1(i)});
-  DECLARE(INLINE_CONVERSION,i8,i16,$zext,{$s2u.i8(i)});
-  DECLARE(INLINE_CONVERSION,i8,i32,$zext,{$s2u.i8(i)});
-  DECLARE(INLINE_CONVERSION,i8,i64,$zext,{$s2u.i8(i)});
-  DECLARE(INLINE_CONVERSION,i16,i32,$zext,{$s2u.i16(i)});
-  DECLARE(INLINE_CONVERSION,i16,i64,$zext,{$s2u.i16(i)});
-  DECLARE(INLINE_CONVERSION,i32,i64,$zext,{$s2u.i32(i)});
+  DECLARE(INLINE_CONVERSION,i1,i8,$zext,{$tou.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i16,$zext,{$tou.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i32,$zext,{$tou.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i64,$zext,{$tou.i1(i)});
+  DECLARE(INLINE_CONVERSION,i8,i16,$zext,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i8,i32,$zext,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i8,i64,$zext,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i16,i32,$zext,{$tou.i16(i)});
+  DECLARE(INLINE_CONVERSION,i16,i64,$zext,{$tou.i16(i)});
+  DECLARE(INLINE_CONVERSION,i32,i64,$zext,{$tou.i32(i)});
 
-  DECLARE(INLINE_CONVERSION,i1,i8,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i16,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i32,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i64,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i16,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i32,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i64,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i16,i32,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i16,i64,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i32,i64,$sext,{i});
+  DECLARE(INLINE_CONVERSION,i1,i8,$sext,{$tos.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i16,$sext,{$tos.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i32,$sext,{$tos.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i64,$sext,{$tos.i1(i)});
+  DECLARE(INLINE_CONVERSION,i8,i16,$sext,{$tos.i8(i)});
+  DECLARE(INLINE_CONVERSION,i8,i32,$sext,{$tos.i8(i)});
+  DECLARE(INLINE_CONVERSION,i8,i64,$sext,{$tos.i8(i)});
+  DECLARE(INLINE_CONVERSION,i16,i32,$sext,{$tos.i16(i)});
+  DECLARE(INLINE_CONVERSION,i16,i64,$sext,{$tos.i16(i)});
+  DECLARE(INLINE_CONVERSION,i32,i64,$sext,{$tos.i32(i)});
 
   D("type float;");
   D("function $fp(ipart:int, fpart:int, epart:int) returns (float);");
