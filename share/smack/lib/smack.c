@@ -442,19 +442,72 @@ void __SMACK_decls() {
   D("function {:builtin \"div\"} $div(i1: int, i2: int) returns (int);");
   D("function {:builtin \"mod\"} $mod(i1: int, i2: int) returns (int);");
   D("function {:builtin \"rem\"} $rem(i1: int, i2: int) returns (int);");
-  D("function {:inline} $min(i1: int, i2: int) returns (int) {if i1 < i2 then i1 else i2}");
-  D("function {:inline} $max(i1: int, i2: int) returns (int) {if i1 > i2 then i1 else i2}");
 
-  DECLARE_EACH_INT_TYPE(BUILTIN_BINARY_OP, $sdiv, div)
-  DECLARE_EACH_INT_TYPE(BUILTIN_BINARY_OP, $smod, mod)
-  DECLARE_EACH_INT_TYPE(BUILTIN_BINARY_OP, $srem, rem)
-  DECLARE_EACH_INT_TYPE(BUILTIN_BINARY_OP, $udiv, div);
-  DECLARE_EACH_INT_TYPE(BUILTIN_BINARY_OP, $urem, rem);
+  DECLARE(INLINE_UNARY_OP, i64, $tou, { if i >= 0 && i < LIMIT_64 then i else $mod(i,LIMIT_64) });
+  DECLARE(INLINE_UNARY_OP, i32, $tou, { if i >= 0 && i < LIMIT_32 then i else $mod(i,LIMIT_32) });
+  DECLARE(INLINE_UNARY_OP, i16, $tou, { if i >= 0 && i < LIMIT_16 then i else $mod(i,LIMIT_16) });
+  DECLARE(INLINE_UNARY_OP, i8, $tou, { if i >= 0 && i < LIMIT_8 then i else $mod(i,LIMIT_8) });
+  DECLARE(INLINE_UNARY_OP, i1, $tou, { if i >= 0 && i < LIMIT_1 then i else $mod(i,LIMIT_1) });
 
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_OP, $smin, {$min(i1,i2)})
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_OP, $smax, {$max(i1,i2)})
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_OP, $umin, {$min(i1,i2)})
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_OP, $umax, {$max(i1,i2)})
+  DECLARE(INLINE_UNARY_OP, i64, $tos, { if i >= -LIMIT_63 && i < LIMIT_63 then i else $mod(i+LIMIT_63,LIMIT_64) - LIMIT_63 });
+  DECLARE(INLINE_UNARY_OP, i32, $tos, { if i >= -LIMIT_31 && i < LIMIT_31 then i else $mod(i+LIMIT_31,LIMIT_32) - LIMIT_31 });
+  DECLARE(INLINE_UNARY_OP, i16, $tos, { if i >= -LIMIT_15 && i < LIMIT_15 then i else $mod(i+LIMIT_15,LIMIT_16) - LIMIT_15 });
+  DECLARE(INLINE_UNARY_OP, i8, $tos, { if i >= -LIMIT_7 && i < LIMIT_7 then i else $mod(i+LIMIT_7,LIMIT_8) - LIMIT_7 });
+  DECLARE(INLINE_UNARY_OP, i1, $tos, { if i >= -1 && i < 1 then i else $mod(i+1,LIMIT_1) - 1 });
+
+  DECLARE(INLINE_BINARY_OP, i64, $sdiv, { $div($tos.i64(i1),$tos.i64(i2)) });
+  DECLARE(INLINE_BINARY_OP, i32, $sdiv, { $div($tos.i32(i1),$tos.i32(i2)) });
+  DECLARE(INLINE_BINARY_OP, i16, $sdiv, { $div($tos.i16(i1),$tos.i16(i2)) });
+  DECLARE(INLINE_BINARY_OP, i8,  $sdiv, { $div($tos.i8(i1),$tos.i8(i2)) });
+  DECLARE(INLINE_BINARY_OP, i1,  $sdiv, { $div($tos.i1(i1),$tos.i1(i2)) });
+
+  DECLARE(INLINE_BINARY_OP, i64, $smod, { $mod($tos.i64(i1),$tos.i64(i2)) });
+  DECLARE(INLINE_BINARY_OP, i32, $smod, { $mod($tos.i32(i1),$tos.i32(i2)) });
+  DECLARE(INLINE_BINARY_OP, i16, $smod, { $mod($tos.i16(i1),$tos.i16(i2)) });
+  DECLARE(INLINE_BINARY_OP, i8,  $smod, { $mod($tos.i8(i1),$tos.i8(i2)) });
+  DECLARE(INLINE_BINARY_OP, i1,  $smod, { $mod($tos.i1(i1),$tos.i1(i2)) });
+
+  DECLARE(INLINE_BINARY_OP, i64, $srem, { $rem($tos.i64(i1),$tos.i64(i2)) });
+  DECLARE(INLINE_BINARY_OP, i32, $srem, { $rem($tos.i32(i1),$tos.i32(i2)) });
+  DECLARE(INLINE_BINARY_OP, i16, $srem, { $rem($tos.i16(i1),$tos.i16(i2)) });
+  DECLARE(INLINE_BINARY_OP, i8,  $srem, { $rem($tos.i8(i1),$tos.i8(i2)) });
+  DECLARE(INLINE_BINARY_OP, i1,  $srem, { $rem($tos.i1(i1),$tos.i1(i2)) });
+
+  DECLARE(INLINE_BINARY_OP, i64, $udiv, { $div($tou.i64(i1),$tou.i64(i2)) });
+  DECLARE(INLINE_BINARY_OP, i32, $udiv, { $div($tou.i32(i1),$tou.i32(i2)) });
+  DECLARE(INLINE_BINARY_OP, i16, $udiv, { $div($tou.i16(i1),$tou.i16(i2)) });
+  DECLARE(INLINE_BINARY_OP, i8,  $udiv, { $div($tou.i8(i1),$tou.i8(i2)) });
+  DECLARE(INLINE_BINARY_OP, i1,  $udiv, { $div($tou.i1(i1),$tou.i1(i2)) });
+
+  DECLARE(INLINE_BINARY_OP, i64, $urem, { $rem($tou.i64(i1),$tou.i64(i2)) });
+  DECLARE(INLINE_BINARY_OP, i32, $urem, { $rem($tou.i32(i1),$tou.i32(i2)) });
+  DECLARE(INLINE_BINARY_OP, i16, $urem, { $rem($tou.i16(i1),$tou.i16(i2)) });
+  DECLARE(INLINE_BINARY_OP, i8,  $urem, { $rem($tou.i8(i1),$tou.i8(i2)) });
+  DECLARE(INLINE_BINARY_OP, i1,  $urem, { $rem($tou.i1(i1),$tou.i1(i2)) });
+
+  DECLARE(INLINE_BINARY_OP, i64, $min, {if $tos.i64(i1) < $tos.i64(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i32, $min, {if $tos.i32(i1) < $tos.i32(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i16, $min, {if $tos.i16(i1) < $tos.i16(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i8, $min, {if $tos.i8(i1) < $tos.i8(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i1, $min, {if $tos.i1(i1) < $tos.i1(i2) then i1 else i2});
+
+  DECLARE(INLINE_BINARY_OP, i64, $max, {if $tos.i64(i1) > $tos.i64(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i32, $max, {if $tos.i32(i1) > $tos.i32(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i16, $max, {if $tos.i16(i1) > $tos.i16(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i8, $max, {if $tos.i8(i1) > $tos.i8(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i1, $max, {if $tos.i1(i1) > $tos.i1(i2) then i1 else i2});
+
+  DECLARE(INLINE_BINARY_OP, i64, $umin, {if $tou.i64(i1) < $tou.i64(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i32, $umin, {if $tou.i32(i1) < $tou.i32(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i16, $umin, {if $tou.i16(i1) < $tou.i16(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i8, $umin, {if $tou.i8(i1) < $tou.i8(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i1, $umin, {if $tou.i1(i1) < $tou.i1(i2) then i1 else i2});
+
+  DECLARE(INLINE_BINARY_OP, i64, $umax, {if $tou.i64(i1) > $tou.i64(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i32, $umax, {if $tou.i32(i1) > $tou.i32(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i16, $umax, {if $tou.i16(i1) > $tou.i16(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i8, $umax, {if $tou.i8(i1) > $tou.i8(i2) then i1 else i2});
+  DECLARE(INLINE_BINARY_OP, i1, $umax, {if $tou.i1(i1) > $tou.i1(i2) then i1 else i2});
 
   DECLARE_EACH_INT_TYPE(UNINTERPRETED_BINARY_OP, $shl)
   DECLARE_EACH_INT_TYPE(UNINTERPRETED_BINARY_OP, $lshr)
@@ -467,14 +520,54 @@ void __SMACK_decls() {
 
   DECLARE_EACH_INT_TYPE(INLINE_BINARY_PRED, $eq, i1 == i2)
   DECLARE_EACH_INT_TYPE(INLINE_BINARY_PRED, $ne, i1 != i2)
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_PRED, $ule, i1 <= i2)
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_PRED, $ult, i1 < i2)
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_PRED, $uge, i1 >= i2)
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_PRED, $ugt, i1 > i2)
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_PRED, $sle, i1 <= i2)
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_PRED, $slt, i1 < i2)
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_PRED, $sge, i1 >= i2)
-  DECLARE_EACH_INT_TYPE(INLINE_BINARY_PRED, $sgt, i1 > i2)
+
+  DECLARE(INLINE_BINARY_PRED, i64, $ule, $tou.i64(i1) <= $tou.i64(i2));
+  DECLARE(INLINE_BINARY_PRED, i32, $ule, $tou.i32(i1) <= $tou.i32(i2));
+  DECLARE(INLINE_BINARY_PRED, i16, $ule, $tou.i16(i1) <= $tou.i16(i2));
+  DECLARE(INLINE_BINARY_PRED, i8, $ule, $tou.i8(i1) <= $tou.i8(i2));
+  DECLARE(INLINE_BINARY_PRED, i1, $ule, $tou.i1(i1) <= $tou.i1(i2));
+
+  DECLARE(INLINE_BINARY_PRED, i64, $ult, $tou.i64(i1) < $tou.i64(i2));
+  DECLARE(INLINE_BINARY_PRED, i32, $ult, $tou.i32(i1) < $tou.i32(i2));
+  DECLARE(INLINE_BINARY_PRED, i16, $ult, $tou.i16(i1) < $tou.i16(i2));
+  DECLARE(INLINE_BINARY_PRED, i8, $ult, $tou.i8(i1) < $tou.i8(i2));
+  DECLARE(INLINE_BINARY_PRED, i1, $ult, $tou.i1(i1) < $tou.i1(i2));
+
+  DECLARE(INLINE_BINARY_PRED, i64, $uge, $tou.i64(i1) >= $tou.i64(i2));
+  DECLARE(INLINE_BINARY_PRED, i32, $uge, $tou.i32(i1) >= $tou.i32(i2));
+  DECLARE(INLINE_BINARY_PRED, i16, $uge, $tou.i16(i1) >= $tou.i16(i2));
+  DECLARE(INLINE_BINARY_PRED, i8, $uge, $tou.i8(i1) >= $tou.i8(i2));
+  DECLARE(INLINE_BINARY_PRED, i1, $uge, $tou.i1(i1) >= $tou.i1(i2));
+
+  DECLARE(INLINE_BINARY_PRED, i64, $ugt, $tou.i64(i1) > $tou.i64(i2));
+  DECLARE(INLINE_BINARY_PRED, i32, $ugt, $tou.i32(i1) > $tou.i32(i2));
+  DECLARE(INLINE_BINARY_PRED, i16, $ugt, $tou.i16(i1) > $tou.i16(i2));
+  DECLARE(INLINE_BINARY_PRED, i8, $ugt, $tou.i8(i1) > $tou.i8(i2));
+  DECLARE(INLINE_BINARY_PRED, i1, $ugt, $tou.i1(i1) > $tou.i1(i2));
+
+  DECLARE(INLINE_BINARY_PRED, i64, $sle, $tos.i64(i1) <= $tos.i64(i2));
+  DECLARE(INLINE_BINARY_PRED, i32, $sle, $tos.i32(i1) <= $tos.i32(i2));
+  DECLARE(INLINE_BINARY_PRED, i16, $sle, $tos.i16(i1) <= $tos.i16(i2));
+  DECLARE(INLINE_BINARY_PRED, i8, $sle, $tos.i8(i1) <= $tos.i8(i2));
+  DECLARE(INLINE_BINARY_PRED, i1, $sle, $tos.i1(i1) <= $tos.i1(i2));
+
+  DECLARE(INLINE_BINARY_PRED, i64, $slt, $tos.i64(i1) < $tos.i64(i2));
+  DECLARE(INLINE_BINARY_PRED, i32, $slt, $tos.i32(i1) < $tos.i32(i2));
+  DECLARE(INLINE_BINARY_PRED, i16, $slt, $tos.i16(i1) < $tos.i16(i2));
+  DECLARE(INLINE_BINARY_PRED, i8, $slt, $tos.i8(i1) < $tos.i8(i2));
+  DECLARE(INLINE_BINARY_PRED, i1, $slt, $tos.i1(i1) < $tos.i1(i2));
+
+  DECLARE(INLINE_BINARY_PRED, i64, $sge, $tos.i64(i1) >= $tos.i64(i2));
+  DECLARE(INLINE_BINARY_PRED, i32, $sge, $tos.i32(i1) >= $tos.i32(i2));
+  DECLARE(INLINE_BINARY_PRED, i16, $sge, $tos.i16(i1) >= $tos.i16(i2));
+  DECLARE(INLINE_BINARY_PRED, i8, $sge, $tou.i8(i1) >= $tos.i8(i2));
+  DECLARE(INLINE_BINARY_PRED, i1, $sge, $tou.i1(i1) >= $tos.i1(i2));
+
+  DECLARE(INLINE_BINARY_PRED, i64, $sgt, $tos.i64(i1) > $tos.i64(i2));
+  DECLARE(INLINE_BINARY_PRED, i32, $sgt, $tos.i32(i1) > $tos.i32(i2));
+  DECLARE(INLINE_BINARY_PRED, i16, $sgt, $tos.i16(i1) > $tos.i16(i2));
+  DECLARE(INLINE_BINARY_PRED, i8, $sgt, $tos.i8(i1) > $tos.i8(i2));
+  DECLARE(INLINE_BINARY_PRED, i1, $sgt, $tos.i1(i1) > $tos.i1(i2));
 
   D("axiom $and.i1(0,0) == 0;");
   D("axiom $and.i1(0,1) == 0;");
@@ -489,214 +582,236 @@ void __SMACK_decls() {
   D("axiom $xor.i1(1,0) == 1;");
   D("axiom $xor.i1(1,1) == 0;");
 
-  DECLARE(INLINE_CONVERSION,i128,i96,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i128,i88,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i128,i64,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i128,i56,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i128,i48,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i128,i40,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i128,i32,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i128,i24,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i128,i16,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i128,i8,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i128,i1,$trunc,{i});
+  DECLARE(INLINE_CONVERSION,i128,i96,$trunc,{$tou.i96(i)});
+  DECLARE(INLINE_CONVERSION,i128,i88,$trunc,{$tou.i88(i)});
+  DECLARE(INLINE_CONVERSION,i128,i64,$trunc,{$tou.i64(i)});
+  DECLARE(INLINE_CONVERSION,i128,i56,$trunc,{$tou.i56(i)});
+  DECLARE(INLINE_CONVERSION,i128,i48,$trunc,{$tou.i48(i)});
+  DECLARE(INLINE_CONVERSION,i128,i40,$trunc,{$tou.i40(i)});
+  DECLARE(INLINE_CONVERSION,i128,i32,$trunc,{$tou.i32(i)});
+  DECLARE(INLINE_CONVERSION,i128,i24,$trunc,{$tou.i24(i)});
+  DECLARE(INLINE_CONVERSION,i128,i16,$trunc,{$tou.i16(i)});
+  DECLARE(INLINE_CONVERSION,i128,i8,$trunc,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i128,i1,$trunc,{$tou.i1(i)});
 
-  DECLARE(INLINE_CONVERSION,i96,i64,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i96,i88,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i96,i56,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i96,i48,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i96,i40,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i96,i32,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i96,i24,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i96,i16,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i96,i8,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i96,i1,$trunc,{i});
+  DECLARE(INLINE_CONVERSION,i96,i88,$trunc,{$tou.i88(i)});
+  DECLARE(INLINE_CONVERSION,i96,i64,$trunc,{$tou.i64(i)});
+  DECLARE(INLINE_CONVERSION,i96,i56,$trunc,{$tou.i56(i)});
+  DECLARE(INLINE_CONVERSION,i96,i48,$trunc,{$tou.i48(i)});
+  DECLARE(INLINE_CONVERSION,i96,i40,$trunc,{$tou.i40(i)});
+  DECLARE(INLINE_CONVERSION,i96,i32,$trunc,{$tou.i32(i)});
+  DECLARE(INLINE_CONVERSION,i96,i24,$trunc,{$tou.i24(i)});
+  DECLARE(INLINE_CONVERSION,i96,i16,$trunc,{$tou.i16(i)});
+  DECLARE(INLINE_CONVERSION,i96,i8,$trunc,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i96,i1,$trunc,{$tou.i1(i)});
 
-  DECLARE(INLINE_CONVERSION,i88,i64,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i88,i88,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i88,i56,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i88,i48,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i88,i40,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i88,i32,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i88,i24,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i88,i16,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i88,i8,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i88,i1,$trunc,{i});
+  DECLARE(INLINE_CONVERSION,i88,i64,$trunc,{$tou.i64(i)});
+  DECLARE(INLINE_CONVERSION,i88,i56,$trunc,{$tou.i56(i)});
+  DECLARE(INLINE_CONVERSION,i88,i48,$trunc,{$tou.i48(i)});
+  DECLARE(INLINE_CONVERSION,i88,i40,$trunc,{$tou.i40(i)});
+  DECLARE(INLINE_CONVERSION,i88,i32,$trunc,{$tou.i32(i)});
+  DECLARE(INLINE_CONVERSION,i88,i24,$trunc,{$tou.i24(i)});
+  DECLARE(INLINE_CONVERSION,i88,i16,$trunc,{$tou.i16(i)});
+  DECLARE(INLINE_CONVERSION,i88,i8,$trunc,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i88,i1,$trunc,{$tou.i1(i)});
 
-  DECLARE(INLINE_CONVERSION,i64,i56,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i64,i48,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i64,i40,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i64,i32,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i64,i24,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i64,i16,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i64,i8,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i64,i1,$trunc,{i});
+  DECLARE(INLINE_CONVERSION,i64,i56,$trunc,{$tou.i56(i)});
+  DECLARE(INLINE_CONVERSION,i64,i48,$trunc,{$tou.i48(i)});
+  DECLARE(INLINE_CONVERSION,i64,i40,$trunc,{$tou.i40(i)});
+  DECLARE(INLINE_CONVERSION,i64,i32,$trunc,{$tou.i32(i)});
+  DECLARE(INLINE_CONVERSION,i64,i24,$trunc,{$tou.i24(i)});
+  DECLARE(INLINE_CONVERSION,i64,i16,$trunc,{$tou.i16(i)});
+  DECLARE(INLINE_CONVERSION,i64,i8,$trunc,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i64,i1,$trunc,{$tou.i1(i)});
 
-  DECLARE(INLINE_CONVERSION,i56,i48,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i56,i40,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i56,i32,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i56,i24,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i56,i16,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i56,i8,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i56,i1,$trunc,{i});
+  DECLARE(INLINE_CONVERSION,i56,i48,$trunc,{$tou.i48(i)});
+  DECLARE(INLINE_CONVERSION,i56,i40,$trunc,{$tou.i40(i)});
+  DECLARE(INLINE_CONVERSION,i56,i32,$trunc,{$tou.i32(i)});
+  DECLARE(INLINE_CONVERSION,i56,i24,$trunc,{$tou.i24(i)});
+  DECLARE(INLINE_CONVERSION,i56,i16,$trunc,{$tou.i16(i)});
+  DECLARE(INLINE_CONVERSION,i56,i8,$trunc,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i56,i1,$trunc,{$tou.i1(i)});
 
-  DECLARE(INLINE_CONVERSION,i48,i40,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i48,i32,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i48,i24,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i48,i16,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i48,i8,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i48,i1,$trunc,{i});
+  DECLARE(INLINE_CONVERSION,i48,i40,$trunc,{$tou.i40(i)});
+  DECLARE(INLINE_CONVERSION,i48,i32,$trunc,{$tou.i32(i)});
+  DECLARE(INLINE_CONVERSION,i48,i24,$trunc,{$tou.i24(i)});
+  DECLARE(INLINE_CONVERSION,i48,i16,$trunc,{$tou.i16(i)});
+  DECLARE(INLINE_CONVERSION,i48,i8,$trunc,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i48,i1,$trunc,{$tou.i1(i)});
 
-  DECLARE(INLINE_CONVERSION,i40,i32,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i40,i24,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i40,i16,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i40,i8,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i40,i1,$trunc,{i});
+  DECLARE(INLINE_CONVERSION,i40,i32,$trunc,{$tou.i32(i)});
+  DECLARE(INLINE_CONVERSION,i40,i24,$trunc,{$tou.i24(i)});
+  DECLARE(INLINE_CONVERSION,i40,i16,$trunc,{$tou.i16(i)});
+  DECLARE(INLINE_CONVERSION,i40,i8,$trunc,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i40,i1,$trunc,{$tou.i1(i)});
 
-  DECLARE(INLINE_CONVERSION,i32,i24,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i32,i16,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i32,i8,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i32,i1,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i24,i16,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i24,i8,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i24,i1,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i16,i8,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i16,i1,$trunc,{i});
-  DECLARE(INLINE_CONVERSION,i8,i1,$trunc,{i});
+  DECLARE(INLINE_CONVERSION,i32,i24,$trunc,{$tou.i24(i)});
+  DECLARE(INLINE_CONVERSION,i32,i16,$trunc,{$tou.i16(i)});
+  DECLARE(INLINE_CONVERSION,i32,i8,$trunc,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i32,i1,$trunc,{$tou.i1(i)});
 
-  DECLARE(INLINE_CONVERSION,i1,i8,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i16,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i24,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i32,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i40,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i48,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i56,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i64,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i88,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i96,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i128,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i16,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i24,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i32,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i40,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i48,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i56,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i64,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i88,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i96,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i128,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i16,i24,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i16,i32,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i16,i40,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i16,i48,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i16,i56,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i16,i64,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i16,i88,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i16,i96,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i16,i128,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i24,i32,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i24,i40,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i24,i48,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i24,i56,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i24,i64,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i24,i88,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i24,i96,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i24,i128,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i32,i40,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i32,i48,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i32,i56,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i32,i64,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i32,i88,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i32,i96,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i32,i128,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i40,i48,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i40,i56,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i40,i64,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i40,i88,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i40,i96,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i40,i128,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i48,i56,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i48,i64,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i48,i88,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i48,i96,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i48,i128,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i56,i64,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i56,i88,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i56,i96,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i56,i128,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i64,i88,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i64,i96,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i64,i128,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i88,i96,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i88,i128,$zext,{i});
-  DECLARE(INLINE_CONVERSION,i96,i128,$zext,{i});
+  DECLARE(INLINE_CONVERSION,i24,i16,$trunc,{$tou.i16(i)});
+  DECLARE(INLINE_CONVERSION,i24,i8,$trunc,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i24,i1,$trunc,{$tou.i1(i)});
 
-  DECLARE(INLINE_CONVERSION,i1,i8,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i16,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i24,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i32,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i40,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i48,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i56,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i64,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i88,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i96,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i1,i128,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i16,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i24,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i32,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i40,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i48,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i56,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i64,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i88,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i96,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i8,i128,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i16,i24,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i16,i32,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i16,i40,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i16,i48,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i16,i56,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i16,i64,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i16,i88,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i16,i96,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i16,i128,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i24,i32,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i24,i40,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i24,i48,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i24,i56,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i24,i64,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i24,i88,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i24,i96,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i24,i128,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i32,i40,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i32,i48,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i32,i56,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i32,i64,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i32,i88,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i32,i96,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i32,i128,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i40,i48,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i40,i56,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i40,i64,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i40,i88,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i40,i96,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i40,i128,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i48,i56,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i48,i64,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i48,i88,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i48,i96,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i48,i128,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i56,i64,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i56,i88,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i56,i96,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i56,i128,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i64,i88,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i64,i96,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i64,i128,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i88,i96,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i88,i128,$sext,{i});
-  DECLARE(INLINE_CONVERSION,i96,i128,$sext,{i});
+  DECLARE(INLINE_CONVERSION,i16,i8,$trunc,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i16,i1,$trunc,{$tou.i1(i)});
+
+  DECLARE(INLINE_CONVERSION,i8,i1,$trunc,{$tou.i1(i)});
+
+  DECLARE(INLINE_CONVERSION,i1,i8,$zext,{$tou.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i16,$zext,{$tou.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i24,$zext,{$tou.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i32,$zext,{$tou.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i40,$zext,{$tou.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i48,$zext,{$tou.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i56,$zext,{$tou.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i64,$zext,{$tou.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i88,$zext,{$tou.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i96,$zext,{$tou.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i128,$zext,{$tou.i1(i)});
+
+  DECLARE(INLINE_CONVERSION,i8,i16,$zext,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i8,i24,$zext,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i8,i32,$zext,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i8,i40,$zext,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i8,i48,$zext,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i8,i56,$zext,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i8,i64,$zext,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i8,i88,$zext,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i8,i96,$zext,{$tou.i8(i)});
+  DECLARE(INLINE_CONVERSION,i8,i128,$zext,{$tou.i8(i)});
+
+  DECLARE(INLINE_CONVERSION,i16,i24,$zext,{$tou.i16(i)});
+  DECLARE(INLINE_CONVERSION,i16,i32,$zext,{$tou.i16(i)});
+  DECLARE(INLINE_CONVERSION,i16,i40,$zext,{$tou.i16(i)});
+  DECLARE(INLINE_CONVERSION,i16,i48,$zext,{$tou.i16(i)});
+  DECLARE(INLINE_CONVERSION,i16,i56,$zext,{$tou.i16(i)});
+  DECLARE(INLINE_CONVERSION,i16,i64,$zext,{$tou.i16(i)});
+  DECLARE(INLINE_CONVERSION,i16,i88,$zext,{$tou.i16(i)});
+  DECLARE(INLINE_CONVERSION,i16,i96,$zext,{$tou.i16(i)});
+  DECLARE(INLINE_CONVERSION,i16,i128,$zext,{$tou.i16(i)});
+
+  DECLARE(INLINE_CONVERSION,i24,i32,$zext,{$tou.i24(i)});
+  DECLARE(INLINE_CONVERSION,i24,i40,$zext,{$tou.i24(i)});
+  DECLARE(INLINE_CONVERSION,i24,i48,$zext,{$tou.i24(i)});
+  DECLARE(INLINE_CONVERSION,i24,i56,$zext,{$tou.i24(i)});
+  DECLARE(INLINE_CONVERSION,i24,i64,$zext,{$tou.i24(i)});
+  DECLARE(INLINE_CONVERSION,i24,i88,$zext,{$tou.i24(i)});
+  DECLARE(INLINE_CONVERSION,i24,i96,$zext,{$tou.i24(i)});
+  DECLARE(INLINE_CONVERSION,i24,i128,$zext,{$tou.i24(i)});
+
+  DECLARE(INLINE_CONVERSION,i32,i40,$zext,{$tou.i32(i)});
+  DECLARE(INLINE_CONVERSION,i32,i48,$zext,{$tou.i32(i)});
+  DECLARE(INLINE_CONVERSION,i32,i56,$zext,{$tou.i32(i)});
+  DECLARE(INLINE_CONVERSION,i32,i64,$zext,{$tou.i32(i)});
+  DECLARE(INLINE_CONVERSION,i32,i88,$zext,{$tou.i32(i)});
+  DECLARE(INLINE_CONVERSION,i32,i96,$zext,{$tou.i32(i)});
+  DECLARE(INLINE_CONVERSION,i32,i128,$zext,{$tou.i32(i)});
+
+  DECLARE(INLINE_CONVERSION,i40,i48,$zext,{$tou.i40(i)});
+  DECLARE(INLINE_CONVERSION,i40,i56,$zext,{$tou.i40(i)});
+  DECLARE(INLINE_CONVERSION,i40,i64,$zext,{$tou.i40(i)});
+  DECLARE(INLINE_CONVERSION,i40,i88,$zext,{$tou.i40(i)});
+  DECLARE(INLINE_CONVERSION,i40,i96,$zext,{$tou.i40(i)});
+  DECLARE(INLINE_CONVERSION,i40,i128,$zext,{$tou.i40(i)});
+
+  DECLARE(INLINE_CONVERSION,i48,i56,$zext,{$tou.i48(i)});
+  DECLARE(INLINE_CONVERSION,i48,i64,$zext,{$tou.i48(i)});
+  DECLARE(INLINE_CONVERSION,i48,i88,$zext,{$tou.i48(i)});
+  DECLARE(INLINE_CONVERSION,i48,i96,$zext,{$tou.i48(i)});
+  DECLARE(INLINE_CONVERSION,i48,i128,$zext,{$tou.i48(i)});
+
+  DECLARE(INLINE_CONVERSION,i56,i64,$zext,{$tou.i56(i)});
+  DECLARE(INLINE_CONVERSION,i56,i88,$zext,{$tou.i56(i)});
+  DECLARE(INLINE_CONVERSION,i56,i96,$zext,{$tou.i56(i)});
+  DECLARE(INLINE_CONVERSION,i56,i128,$zext,{$tou.i56(i)});
+
+  DECLARE(INLINE_CONVERSION,i64,i88,$zext,{$tou.i64(i)});
+  DECLARE(INLINE_CONVERSION,i64,i96,$zext,{$tou.i64(i)});
+  DECLARE(INLINE_CONVERSION,i64,i128,$zext,{$tou.i64(i)});
+
+  DECLARE(INLINE_CONVERSION,i88,i96,$zext,{$tou.i88(i)});
+  DECLARE(INLINE_CONVERSION,i88,i128,$zext,{$tou.i88(i)});
+
+  DECLARE(INLINE_CONVERSION,i96,i128,$zext,{$tou.i96(i)});
+
+  DECLARE(INLINE_CONVERSION,i1,i8,$sext,{$tos.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i16,$sext,{$tos.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i24,$sext,{$tos.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i32,$sext,{$tos.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i40,$sext,{$tos.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i48,$sext,{$tos.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i56,$sext,{$tos.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i64,$sext,{$tos.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i88,$sext,{$tos.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i96,$sext,{$tos.i1(i)});
+  DECLARE(INLINE_CONVERSION,i1,i128,$sext,{$tos.i1(i)});
+
+  DECLARE(INLINE_CONVERSION,i8,i16,$sext,{$tos.i8(i)});
+  DECLARE(INLINE_CONVERSION,i8,i24,$sext,{$tos.i8(i)});
+  DECLARE(INLINE_CONVERSION,i8,i32,$sext,{$tos.i8(i)});
+  DECLARE(INLINE_CONVERSION,i8,i40,$sext,{$tos.i8(i)});
+  DECLARE(INLINE_CONVERSION,i8,i48,$sext,{$tos.i8(i)});
+  DECLARE(INLINE_CONVERSION,i8,i56,$sext,{$tos.i8(i)});
+  DECLARE(INLINE_CONVERSION,i8,i64,$sext,{$tos.i8(i)});
+  DECLARE(INLINE_CONVERSION,i8,i88,$sext,{$tos.i8(i)});
+  DECLARE(INLINE_CONVERSION,i8,i96,$sext,{$tos.i8(i)});
+  DECLARE(INLINE_CONVERSION,i8,i128,$sext,{$tos.i8(i)});
+
+  DECLARE(INLINE_CONVERSION,i16,i24,$sext,{$tos.i16(i)});
+  DECLARE(INLINE_CONVERSION,i16,i32,$sext,{$tos.i16(i)});
+  DECLARE(INLINE_CONVERSION,i16,i40,$sext,{$tos.i16(i)});
+  DECLARE(INLINE_CONVERSION,i16,i48,$sext,{$tos.i16(i)});
+  DECLARE(INLINE_CONVERSION,i16,i56,$sext,{$tos.i16(i)});
+  DECLARE(INLINE_CONVERSION,i16,i64,$sext,{$tos.i16(i)});
+  DECLARE(INLINE_CONVERSION,i16,i88,$sext,{$tos.i16(i)});
+  DECLARE(INLINE_CONVERSION,i16,i96,$sext,{$tos.i16(i)});
+  DECLARE(INLINE_CONVERSION,i16,i128,$sext,{$tos.i16(i)});
+
+  DECLARE(INLINE_CONVERSION,i24,i32,$sext,{$tos.i24(i)});
+  DECLARE(INLINE_CONVERSION,i24,i40,$sext,{$tos.i24(i)});
+  DECLARE(INLINE_CONVERSION,i24,i48,$sext,{$tos.i24(i)});
+  DECLARE(INLINE_CONVERSION,i24,i56,$sext,{$tos.i24(i)});
+  DECLARE(INLINE_CONVERSION,i24,i64,$sext,{$tos.i24(i)});
+  DECLARE(INLINE_CONVERSION,i24,i88,$sext,{$tos.i24(i)});
+  DECLARE(INLINE_CONVERSION,i24,i96,$sext,{$tos.i24(i)});
+  DECLARE(INLINE_CONVERSION,i24,i128,$sext,{$tos.i24(i)});
+
+  DECLARE(INLINE_CONVERSION,i32,i40,$sext,{$tos.i32(i)});
+  DECLARE(INLINE_CONVERSION,i32,i48,$sext,{$tos.i32(i)});
+  DECLARE(INLINE_CONVERSION,i32,i56,$sext,{$tos.i32(i)});
+  DECLARE(INLINE_CONVERSION,i32,i64,$sext,{$tos.i32(i)});
+  DECLARE(INLINE_CONVERSION,i32,i88,$sext,{$tos.i32(i)});
+  DECLARE(INLINE_CONVERSION,i32,i96,$sext,{$tos.i32(i)});
+  DECLARE(INLINE_CONVERSION,i32,i128,$sext,{$tos.i32(i)});
+
+  DECLARE(INLINE_CONVERSION,i40,i48,$sext,{$tos.i40(i)});
+  DECLARE(INLINE_CONVERSION,i40,i56,$sext,{$tos.i40(i)});
+  DECLARE(INLINE_CONVERSION,i40,i64,$sext,{$tos.i40(i)});
+  DECLARE(INLINE_CONVERSION,i40,i88,$sext,{$tos.i40(i)});
+  DECLARE(INLINE_CONVERSION,i40,i96,$sext,{$tos.i40(i)});
+  DECLARE(INLINE_CONVERSION,i40,i128,$sext,{$tos.i40(i)});
+
+  DECLARE(INLINE_CONVERSION,i48,i56,$sext,{$tos.i48(i)});
+  DECLARE(INLINE_CONVERSION,i48,i64,$sext,{$tos.i48(i)});
+  DECLARE(INLINE_CONVERSION,i48,i88,$sext,{$tos.i48(i)});
+  DECLARE(INLINE_CONVERSION,i48,i96,$sext,{$tos.i48(i)});
+  DECLARE(INLINE_CONVERSION,i48,i128,$sext,{$tos.i48(i)});
+
+  DECLARE(INLINE_CONVERSION,i56,i64,$sext,{$tos.i56(i)});
+  DECLARE(INLINE_CONVERSION,i56,i88,$sext,{$tos.i56(i)});
+  DECLARE(INLINE_CONVERSION,i56,i96,$sext,{$tos.i56(i)});
+  DECLARE(INLINE_CONVERSION,i56,i128,$sext,{$tos.i56(i)});
+
+  DECLARE(INLINE_CONVERSION,i64,i88,$sext,{$tos.i64(i)});
+  DECLARE(INLINE_CONVERSION,i64,i96,$sext,{$tos.i64(i)});
+  DECLARE(INLINE_CONVERSION,i64,i128,$sext,{$tos.i64(i)});
+
+  DECLARE(INLINE_CONVERSION,i88,i96,$sext,{$tos.i88(i)});
+  DECLARE(INLINE_CONVERSION,i88,i128,$sext,{$tos.i88(i)});
+
+  DECLARE(INLINE_CONVERSION,i96,i128,$sext,{$tos.i96(i)});
 
   D("function $fp(ipart:int, fpart:int, epart:int) returns (float);");
   D("function $fadd.float(f1:float, f2:float) returns (float);");
@@ -1181,4 +1296,3 @@ void __SMACK_check_memory_safety(void* pointer, unsigned long size) {
 void __SMACK_init_func_memory_model(void) {
   __SMACK_code("$CurrAddr := $1024.ref;");
 }
-
