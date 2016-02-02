@@ -13,7 +13,7 @@
   </rundefinition>
 
   <sourcefiles name="{SETNAME}">
-    <includesfile>../sv-benchmarks/{SETNAME}.set</includesfile>
+    <includesfile>../../sv-benchmarks/c/{SETNAME}.set</includesfile>
   </sourcefiles>
 
   <!-- All svcomp benchmarks should be run with smack's svcomp mode turned on -->

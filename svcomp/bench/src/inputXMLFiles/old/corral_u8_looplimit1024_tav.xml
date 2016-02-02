@@ -4,7 +4,7 @@
 
   <propertyfile>${sourcefile_path}/ALL.prp</propertyfile>
 
-  <rundefinition name="corral_u8_looplimit1024_tav">
+  <rundefinition name="{SETNAME}">
     <option name="--verifier">corral</option>
     <option name="--unroll">8</option>
     <option name="--loop-limit">1024</option>
@@ -12,7 +12,7 @@
   </rundefinition>
 
   <sourcefiles name="{SETNAME}">
-    <includesfile>../sv-benchmarks/{SETNAME}.set</includesfile>
+    <includesfile>../../sv-benchmarks/c/{SETNAME}.set</includesfile>
   </sourcefiles>
 
   <!-- All svcomp benchmarks should be run with smack's svcomp mode turned on -->
@@ -21,7 +21,7 @@
   <!-- Stuff below sets up witness, bc and bpl file download links in table...  -->
   <!--<option name="- -bc">${logfile_path}/${rundefinition_name}/${sourcefile_path}/${sourcefile_name}.bc</option>
   <option name="- -bpl">${logfile_path}/${rundefinition_name}/${sourcefile_path}/${sourcefile_name}.bpl</option> -->
-  <!-- <option name="-w">${logfile_path}/${rundefinition_name}/${sourcefile_path}/${sourcefile_name}.witness.graphml</option> -->
+  <option name="-w">${logfile_path}/${rundefinition_name}/${sourcefile_path}/${sourcefile_name}.witness.graphml</option>
   <option name="--svcomp-property">${sourcefile_path}/ALL.prp</option>
 
   <columns>

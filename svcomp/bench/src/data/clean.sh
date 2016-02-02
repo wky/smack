@@ -4,3 +4,6 @@
 find . -name "*.bpl" -mmin +120 -delete
 find . -name "*.bc" -mmin +120 -delete
 find . -name "*.ll" -mmin +120 -delete
+find . -name "*.dot" -mmin +120 -delete
+find . -name "*.i" -mmin +120 -delete
+find . -name "*.c" -mmin +120 -delete

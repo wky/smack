@@ -35,7 +35,7 @@ class RunSet:
         self.outXml = outputXml
         #self.name = ET.parse(self.outXml).getroot().get("name")
         #   Avoid parsing all output xml files
-        reg = re.compile(r'<result\s.*\sname="(.*?)"\s.*>')
+        reg = re.compile(r'<result\s.*\sname="(.*?)"\s.*>?')
         with open(self.outXml) as f:
             for line in f:
                 a = reg.match(line)
@@ -142,4 +142,13 @@ def getAllOptionsUsed(runSets):
             possibleOptions[opt] = sorted(possibleOptions[opt], key=natural_sort_key)
     return possibleOptions
 
-
+def filterResultsByCategory(runSets, form):
+    """
+    Filters out result sets that don't match the svcomp category (set) given in
+    the cgi form input parameters.
+    """
+    ret = []
+    for runset in runSets:
+        if runset.fileSet == form['category'].value:
+            ret.append(runset)
+    return ret

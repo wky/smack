@@ -38,7 +38,7 @@ Options:
 #Gets rid of existing results
 if [[ $1 == "clean" ]]
     then
-    rm data/exec* -rf
+    rm data/runs/exec* -rf
     rm data/*.bc data/*.bpl data/*.c data/*.log -f
     rm data/nohup*.out -f
     exit
@@ -93,14 +93,14 @@ CORELIMIT=1
 
 
 BENCHEXECPATH=../benchexec/bin
-INPUTXMLPATH=../inputXMLFiles
+INPUTXMLPATH=..
 INPUTXML=${INPUTXMLPATH}/${INPUTXMLFILE}
 
 ################################
 # Generate folder for this run
 ################################
 OUTFOLDER=`date +%Y.%m.%d_%H.%M.%S.%N`
-OUTFOLDER=exec_${OUTFOLDER}_${SETNAME}
+OUTFOLDER="runs/exec_${OUTFOLDER}_${SETNAME}"
 mkdir -p ${OUTFOLDER}
 
 ################################

@@ -35,6 +35,7 @@ if not 2 == len(sys.argv) or not os.path.isdir(sys.argv[1]):
 
 execDir = os.getcwd()
 targetDir = sys.argv[1]
+print(targetDir)
 
 targetDir = os.path.join(targetDir, 'results')
 outXmls = glob.glob(targetDir + '/*results*.xml')
@@ -82,24 +83,32 @@ for outXml in outXmls:
             status = statusCol.get('value')
             # We only need to witness check if we got the answer right
             # and the verification result was false
-            if 'correct' in category and 'false' in status:
+            #if 'correct' in category and 'false' in status:
+            if 'false' in status:
                 # Use runexec to enforce time limit
                 # cpachecker complains if working directory isn't the cpachecker
                 # directory, so we have to adjust paths to match this requirement
                 cmd  = ['../benchexec/bin/runexec']
                 cmd += ['--output', '../' + witnesscheckOutput]
+                #cmd  = ['./benchexec/bin/runexec']
+                #cmd += ['--output', witnesscheckOutput]
                 cmd += ['--timelimit', str(witTimelimit)]
                 cmd += ['--']
                 # Below this point are the witness checking commands
                 cmd += ['./scripts/cpa.sh']
                 cmd += ['-noout']
                 cmd += ['-heap', '16000M']
+                cmd += ['-witness-check']
                 cmd += ['-spec', '../' + witnessfile]
                 cmd += ['-spec', '../' + propfile]
                 cmd += ['../' + tokenizedInputFile]
                 os.chdir('cpachecker')
+                #cmd += ['./witness_validation_web_cloud.py']
+                #cmd += ['--program', tokenizedInputFile]
+                #cmd += ['--witness', witnessfile]
                 p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                 cmdOut = p.communicate()[0]
+                print(cmdOut.decode('utf-8'))
                 checktime = float(re.search('cputime=(.*)s', cmdOut.decode('utf-8')).group(1))
                 
                 os.chdir(execDir)
