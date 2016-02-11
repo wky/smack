@@ -1,0 +1,9 @@
+Loops inputFiles/inputXMLFiles/svcomp_m32_witcheck_packaged.xml
+Overflows inputFiles/inputXMLFiles/svcomp_m64_witcheck_packaged.xml
+Recursive inputFiles/inputXMLFiles/svcomp_m32_witcheck_packaged.xml
+Sequentialized inputFiles/inputXMLFiles/svcomp_m32_witcheck_packaged.xml
+Simple inputFiles/inputXMLFiles/svcomp_m32_witcheck_packaged.xml
+Termination-crafted inputFiles/inputXMLFiles/svcomp_m64_witcheck_packaged.xml
+ProductLines inputFiles/inputXMLFiles/svcomp_m32_witcheck_packaged.xml
+DeviceDriversLinux64 inputFiles/inputXMLFiles/svcomp_m64_witcheck_packaged.xml
+ECA inputFiles/inputXMLFiles/svcomp_m32_witcheck_packaged.xml
