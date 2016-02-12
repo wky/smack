@@ -5,7 +5,9 @@ source tb_compat.tcl
 set bench4 [$ns node]
 tb-set-node-os $bench4 UBUNTU14-64-STD
 tb-set-hardware $bench4 d820
-tb-set-node-startcmd $bench4 "/proj/SMACK/scripts/smackbench_compute_buildscript.sh >& /tmp/smackbench_compute_build.out"
+tb-set-node-startcmd $bench4 "/proj/SMACK/scripts/smackbench_compute_packaged_buildscript.sh >& /tmp/smackbench_compute_build.out"
+
+#tb-set-node-startcmd $bench4 "/proj/SMACK/scripts/smackbench_compute_repo_buildscript.sh >& /tmp/smackbench_compute_build.out"
 
 #Local Storage
 set bs1 [$ns blockstore]
@@ -16,3 +18,4 @@ $bs1 set-node $bench4
 
 $ns rtproto Static
 $ns run
+

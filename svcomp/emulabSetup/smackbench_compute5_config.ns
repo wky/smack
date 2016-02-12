@@ -1,0 +1,24 @@
+set ns [new Simulator]
+source tb_compat.tcl
+
+#Nodes
+set bench5 [$ns node]
+tb-set-node-os $bench5 UBUNTU14-64-STD
+tb-set-hardware $bench5 d710
+tb-set-node-startcmd $bench5 "/proj/SMACK/scripts/smackbench_compute_packaged_buildscript.sh >& /tmp/smackbench_compute_build.out"
+
+#tb-set-node-startcmd $bench5 "/proj/SMACK/scripts/smackbench_compute_repo_buildscript.sh >& /tmp/smackbench_compute_build.out"
+
+
+#Local Storage
+set bs1 [$ns blockstore]
+$bs1 set-class "local"
+$bs1 set-placement "sysvol"
+$bs1 set-mount-point "/mnt/local"
+$bs1 set-node $bench5
+
+$ns rtproto Static
+$ns run
+
+
+

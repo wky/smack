@@ -254,6 +254,13 @@ if __name__ == '__main__':
     #  from being relative to root to being relative to dataFolder before
     #  being used
     os.chdir(cfgObj['dataFolder'])
+    #Make sure folders are created
+    for fold in [cfgObj['runsFolder'], cfgObj['logFolder']]:
+        try:
+            os.mkdir(fold)
+        except OSError:
+            #Already exists
+            pass
     #If server command given
     if(args.mode == 'server'):
         #Determine the destination log file

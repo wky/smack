@@ -33,11 +33,13 @@ if [[ $1 == "tidy" ]]
 	#Strip trailing slash, if any
 	INSTALLDIR=${2%/}
     fi
+    rm -f  ${INSTALLDIR}/*.py
     rm -rf ${INSTALLDIR}/benchexec/
     rm -f  ${INSTALLDIR}/data/*.py
     rm -rf ${INSTALLDIR}/data/serverLogs/
     rm -rf ${INSTALLDIR}/data/runs/
     rm -rf ${INSTALLDIR}/data/__pycache__/
+    rm -f  ${INSTALLDIR}/data/*.*
     rm -rf ${INSTALLDIR}/inputFiles/
     rm -f  ${INSTALLDIR}/runSMACKBench.sh
     rm -rf ${INSTALLDIR}/cpachecker/
