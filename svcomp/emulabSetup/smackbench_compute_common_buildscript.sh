@@ -24,7 +24,8 @@ sudo apt-get install htop vim cgroup-bin cgroup-lite cgmanager software-properti
 #Upgrade kernel
 sudo apt-get install --install-recommends linux-generic-lts-vivid -y
 
-#And all packages
+#And all packages (except grub, because it requires interactive after kernel upgrade)
+sudo apt-mark hold grub-common grub-pc grub-pc-bin grub2-common
 sudo apt-get upgrade -y
 sudo apt-get upgrade -y
 
