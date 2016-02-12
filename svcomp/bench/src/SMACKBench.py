@@ -213,6 +213,7 @@ def runBenchExec(cfgObj, inXmlFile, outPath, concurRunCnt, debug):
     #For some reason, benchexec needs to see a / on the end of the string
     #  to know the last item of the -o value is a folder.
     cmd += ['-o', path.join(outPath, 'results') + '/']
+    cmd += ['--no-compress']
     cmd += ['-N', concurRunCnt]
 
     print(cmd)

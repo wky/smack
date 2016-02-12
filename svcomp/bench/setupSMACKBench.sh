@@ -33,12 +33,14 @@ if [[ $1 == "tidy" ]]
 	#Strip trailing slash, if any
 	INSTALLDIR=${2%/}
     fi
-    rm ${INSTALLDIR}/benchexec/ -rf
-    rm ${INSTALLDIR}/data/*.py -f
-    rm ${INSTALLDIR}/data/__pycache__/ -rf
-    rm ${INSTALLDIR}/inputXMLFiles/ -rf
-    rm ${INSTALLDIR}/runSMACKBench.sh -f
-    rm ${INSTALLDIR}/cpachecker/ -rf
+    rm -rf ${INSTALLDIR}/benchexec/
+    rm -f  ${INSTALLDIR}/data/*.py
+    rm -rf ${INSTALLDIR}/data/serverLogs/
+    rm -rf ${INSTALLDIR}/data/runs/
+    rm -rf ${INSTALLDIR}/data/__pycache__/
+    rm -rf ${INSTALLDIR}/inputFiles/
+    rm -f  ${INSTALLDIR}/runSMACKBench.sh
+    rm -rf ${INSTALLDIR}/cpachecker/
     echo "SMACKBench Install Removed (except for svcomp benchmarks)"
     echo
     exit
@@ -118,23 +120,20 @@ mkdir -p ${INSTALLDIR}
 # Get svcomp benchmarks
 ##########################
 #Download svcomp benchmarks
-#Using export instead of clone so it isn't 6GB of DL (still 3.2GB - is it worth the extra 3 to do checkout?)
-#svn export https://svn.sosy-lab.org/software/sv-benchmarks/trunk/c/ ${INSTALLDIR}/data/sv-benchmarks
-#Use our copy of benchmarks, instead
 git clone https://github.com/smackers/sv-benchmarks.git ${INSTALLDIR}/data/sv-benchmarks
-cd ${INSTALLDIR}/data/sv-benchmarks
-git filter-branch --subdirectory-filter c
-cd ${SRCDIR}
-
 
 ##########################
 # Prepare benchexec
 ##########################
 #Get BenchExec package
-git clone https://github.com/dbeyer/benchexec.git ${INSTALLDIR}/benchexec/
-#git clone https://github.com/MontyCarter/benchexec.git ./install/
+git clone https://github.com/sosy-lab/benchexec.git ${INSTALLDIR}/benchexec/
 #And its dependency, tempita
 wget https://pypi.python.org/packages/3.3/T/Tempita/Tempita-0.5.3dev-py3.3.egg --directory-prefix=${INSTALLDIR}
+#Install unzip if missing
+if [[ -z `which unzip` ]]
+then
+    sudo apt-get install unzip -y
+fi
 #The following extracts only the Tempita-0.5.3dev/tempita folder, and when it does so,
 #  replaces the 'Tempita-0.5.3dev/' portion with 'benchexec/'.
 #  In other words, it extracts just the module portion of tempita to the benchexec folder
@@ -148,24 +147,8 @@ cp src/* ${INSTALLDIR} -r
 ################################
 # Prepare CPAchecker as witness
 ################################
-#Update this to be the most recent stable tag
-svn checkout https://svn.sosy-lab.org/software/cpachecker/tags/cpachecker-1.4/ ${INSTALLDIR}/cpachecker
-JAVAVER=`java -version 2>&1 | head -n 1 | awk -F '"' '{print substr($2,0,3)}'`
-JAVACVER=`javac -version 2>&1 | head -n 1 | awk -F ' ' '{print substr($2,0,3)}'`
-# If java/javac not installed, or java/javac version is less than 1.7, install java 1.7
-if [[ -z `which java` || -z `which javac` || (( ${JAVAVER} < 1.7 )) || (( ${JAVACVER} < 1.7 )) ]]
-then
-    sudo apt-get install openjdk-7-jdk -y
-    sudo update-alternatives --config java
-    sudo update-alternatives --config javac
-fi
-#If ant is not installed, install it
-if [[ -z `which ant` ]]
-then
-    sudo apt-get install ant -y
-fi
-
-#Install CPAchecker
+mkdir ${INSTALLDIR}/cpachecker
 cd ${INSTALLDIR}/cpachecker
-ant
+wget http://sv-comp.sosy-lab.org/2016/witnesses/witness-validation.zip
+unzip witness-validation.zip
 cd ${SRCDIR}
