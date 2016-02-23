@@ -12,4 +12,4 @@ and a webserver serves results from this same share.
 
 ##Documentation
 - [Installation](doc/SMACKBenchInstallation.md)
-
+- [Usage](doc/SMACKBenchUsage.md)

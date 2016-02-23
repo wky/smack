@@ -47,7 +47,7 @@ At this point, it should be possible to swap in compute nodes and begin using
 SMACKBench.  See [emulab instructions](https://wiki.emulab.net/Emulab/wiki) for
 setting up projects and swapping in experiments.
 
-For instructions on using SMACKBench, see [SMACKBench usage](SMACKBenchUsage.md).
+For instructions on using SMACKBench, see [SMACKBench Usage](SMACKBenchUsage.md).
 
 ##Generic Distributed Installation
 This has not been tested or used, but assuming there is shared storage
@@ -76,7 +76,7 @@ as needed):
    and execute `./setupSMACKBench.sh /<shareName>/SMACKBenchResults/`
 
 At the point, SMACKBench should be ready for use.  For instructions on using
-SMACKBench, see [SMACKBench usage](SMACKBenchUsage.md).
+SMACKBench, see [SMACKBench Usage](SMACKBenchUsage.md).
 
 
 ##Single Server Installation
@@ -96,4 +96,4 @@ To install SMACKBench to a single server:
   `./setupSMACKBench.sh <installRoot>/SMACKBenchResults/`
 
 At the point, SMACKBench should be ready for use.  For instructions on using
-SMACKBench, see [SMACKBench usage](SMACKBenchUsage.md).
+SMACKBench, see [SMACKBench Usage](SMACKBenchUsage.md).

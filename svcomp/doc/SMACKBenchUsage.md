@@ -3,7 +3,7 @@ This document assumes installation has already been performed (see
 [SMACKBench Installation](SMACKBenchInstallation.md)).
 
 For non-emulab installations (generic distributed or single server), skip to the
-[Running SMACKBench](#Running-SMACKBench) section. 
+[Running SMACKBench](#running-smackbench) section. 
 
 ##Emulab Swap-In
 123
