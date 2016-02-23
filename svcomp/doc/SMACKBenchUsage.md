@@ -51,16 +51,17 @@ for packaged install, `smack` for repo install), SMACKBench is ready for use.
 
 There are two modes in which SMACKBench can run, `run` mode, and `server` mode.
 
-<Generic info here, about svcomp sets, input xml files, etc.  Witcheck>
+`SMACKBench.py` should be executed from the SMACKBench installation directory
+(`/proj/<projectName>/SMACKBenchResults/` on emulab, as per
+[SMACKBench Installation](SMACKBenchInstallation.md).  Adjust accordingly).
+
+[Generic info here, about svcomp sets, input xml files, etc.  Witcheck]
 
 ###`run` Mode
 `run` mode is for executing a single SVCOMP benchmark set.  This allows a
 specific set to be executed, and the stdout of SMACKBench is routed to the
 console.
 
-`SMACKBench.py` should be executed from the SMACKBench installation directory
-(`/proj/<projectName>/SMACKBenchResults/` on emulab, as per
-[SMACKBench Installation](SMACKBenchInstallation.md).  Adjust accordingly).
 
 ```
 usage: SMACKBench.py run [-h] -s SET -x FILE [-r NUM] [-m NUM] [-c FILE]
