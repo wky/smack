@@ -62,28 +62,30 @@ console.
 (`/proj/<projectName>/SMACKBenchResults/` on emulab, as per
 [SMACKBench Installation](SMACKBenchInstallation.md)).
 
->usage: SMACKBench.py run [-h] -s SET -x FILE [-r NUM] [-m NUM] [-c FILE]
->                         [-d DESC]
->
->optional arguments:
->  -h, --help            show this help message and exit
->  -s SET, --svcomp-set SET
->                        The svcomp set to execute (default: None)
->  -x FILE, --inputXmlFile FILE
->                        The input XML file with which to run svcomp-set
->                        (default: None)
->  -r NUM, --concurrentRuns NUM
->                        The number of concurrent benchmarks to run (default:
->                        8)
->  -m NUM, --memoryPerRun NUM
->                        Amount of memory per concurrent run (in MB) (default:
->                        15000)
->  -c FILE, --config-file FILE
->                        The json file with SMACKBench config settings
->                        (default: inputFiles/config.json)
->  -d DESC, --description DESC
->                        A description field (identifier) to be associated with
->                        each set (default: )
+```
+usage: SMACKBench.py run [-h] -s SET -x FILE [-r NUM] [-m NUM] [-c FILE]
+                         [-d DESC]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -s SET, --svcomp-set SET
+                        The svcomp set to execute (default: None)
+  -x FILE, --inputXmlFile FILE
+                        The input XML file with which to run svcomp-set
+                        (default: None)
+  -r NUM, --concurrentRuns NUM
+                        The number of concurrent benchmarks to run (default:
+                        8)
+  -m NUM, --memoryPerRun NUM
+                        Amount of memory per concurrent run (in MB) (default:
+                        15000)
+  -c FILE, --config-file FILE
+                        The json file with SMACKBench config settings
+                        (default: inputFiles/config.json)
+  -d DESC, --description DESC
+                        A description field (identifier) to be associated with
+                        each set (default: )
+```
 
 An example call providing only the required switches (that is, accepting the
 default options where available) might be:
