@@ -65,18 +65,18 @@ as needed):
   into a new scripts folder: `/<shareName>/scripts/`.
 - Create a scripts folder on a shared storage share accessible from all nodes.
 - Copy the `svcomp/emulabSetup` contents to the new scripts folder.
-- On first OS boot, execute the appropriate buildscript (see 
-  [SMACKBench Usage](SMACKBenchUsage.md)) on each compute node and 
-  `smackbench_webserver_buildscript.sh` on the webserver node.  These can be 
-  found in the `/<shareName>/scripts/` folder.  Wait for compute nodes to 
-  reboot.
+- On first OS boot, execute `smackbench_compute_repo_buildscript.sh` on each
+  compute node and `smackbench_webserver_buildscript.sh` on the webserver node.
+  These can be found in the `/<shareName>/scripts/` folder.  Wait for compute
+  nodes to reboot.
   - The webserver buildscript will need to be adjusted to account for the
     change in the shared folder name/path.
 - From one of the compute nodes, navigate to `/<shareName>/smack/svcomp/bench/`
    and execute `./setupSMACKBench.sh /<shareName>/SMACKBenchResults/`
 
 At the point, SMACKBench should be ready for use.  For instructions on using
-SMACKBench, see [SMACKBench Usage](SMACKBenchUsage.md).
+SMACKBench, see [SMACKBench Usage](SMACKBenchUsage.md).  Note that this is a
+repo based installation.
 
 
 ##Single Server Installation
@@ -96,4 +96,5 @@ To install SMACKBench to a single server:
   `./setupSMACKBench.sh <installRoot>/SMACKBenchResults/`
 
 At the point, SMACKBench should be ready for use.  For instructions on using
-SMACKBench, see [SMACKBench Usage](SMACKBenchUsage.md).
+SMACKBench, see [SMACKBench Usage](SMACKBenchUsage.md).  Note that this is a
+repo based installation.

@@ -20,15 +20,15 @@ To do this,
   is uncommented, and the other build script is commented.
 
 At this point, the compute node can be swapped in.  A compute node built using
-either build script will automatically reboot, at which point the node can be
-used.
+either build script will automatically reboot, at which point SMACK can be
+installed.  Once SMACK is installedt, the node is ready to be used.
 
-###Repo Installation
+###Repo-Based SMACK Installation
 SMACKBench is currently configured to automatically install SMACK from the
 `develop` branch.  Upon swap in and build script completion (which must include
 the automatic reboot), the compute node should be ready to use.
 
-###Package Installation
+###Packaged SMACK Installation
 Because the download/access path of the SMACK package to be installed is not
 known prior to installation, the package installation process is not automated.
 
@@ -46,4 +46,11 @@ Executing `which smack.sh` after package installation will ensure that
 `smack.sh` is available on `PATH`.
 
 ##Running SMACKBench
-abc
+With SMACK properly installed and available on environment `PATH` (`smack.sh`
+for packaged install, `smack` for repo install), SMACKBench is ready for use.
+
+There are two modes in which SMACKBench can run, `server` mode, and `run` mode.
+
+###`run` Mode
+
+###`server` Mode
