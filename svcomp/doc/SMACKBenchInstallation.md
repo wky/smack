@@ -11,14 +11,7 @@ server installation scripts are not kept up to date.
 With that said, a small section can be found near the end of this document with
 guidelines for patching together a SMACKBench installation on a single machine.
 
-##Distributed Installation
-###Overview
-SMACKBench has been designed as a distributed system that allows for dynamic
-scaling of benchmarking (compute) nodes.  Under this design, compute nodes 
-execute benchmarks and aggregate results on shared storage (NFS, with emulab),
-and a webserver serves results from this same share.
-
-###Emulab Setup
+##Emulab Installation
 To facilitate easy emulab setup, `.ns` files have been included in the 
 `svcomp/emulabSetup` folder.  These `.ns` files are configuration files for 
 emulab, and they specify hardware selection, drive configuration, OS selection,
@@ -48,7 +41,7 @@ setting up projects and swapping in experiments.
 
 For instructions on using SMACKBench, see [SMACKBench usage](SMACKBenchUsage.md).
 
-###Non-Emulab Setup
+##Generic Distributed Installation
 This has not been tested or used, but assuming there is shared storage
 available from all hosts in your environment, it shouldn't be too difficult to
 get things working in a custom environment.  Further, documenting this helps in
@@ -79,10 +72,8 @@ SMACKBench, see [SMACKBench usage](SMACKBenchUsage.md).
 
 
 ##Single Server Installation
-###Overview
 This method of installation has also not been tried or tested, but should work.
 
-###Setup
 To install SMACKBench to a single server:
 - Deploy Ubuntu 14.04 LTS 64-bit.
 - Clone SMACK to `<installRoot>/smack`.
@@ -93,8 +84,8 @@ To install SMACKBench to a single server:
   - This script will need to be modified to reflect the correct `<installRoot>`
     path for the apache document root folder.
 - From one of the compute nodes, navigate to 
-  `/<installRoot>/smack/svcomp/bench/` and execute
-  `./setupSMACKBench.sh /<installRoot>/SMACKBenchResults/`
+  `<installRoot>/smack/svcomp/bench/` and execute
+  `./setupSMACKBench.sh <installRoot>/SMACKBenchResults/`
 
 At the point, SMACKBench should be ready for use.  For instructions on using
 SMACKBench, see [SMACKBench usage](SMACKBenchUsage.md).
