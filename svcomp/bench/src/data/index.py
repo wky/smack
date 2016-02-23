@@ -26,7 +26,7 @@ if __name__ == '__main__':
     form = cgi.FieldStorage()
 
     runSets = getAllRunSets(runRoot, runFolderPrefix)
-    print("<pre>", runSets, "</pre>")
+    #print("<pre>", [x.name for x in runSets], "</pre>")
     options = getAllOptionsUsed(runSets)
     optionKeys = sorted(options.keys())
     #Get rid of double entries for witness checked xml files
@@ -81,7 +81,8 @@ if __name__ == '__main__':
 
     for runset in runSets:
         print '''
-        <option value="{0}">{0}</option>'''.format(runset.runsetFolder)
+        <option value="{0}">{2}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{1}</option>
+        '''.format(runset.runsetFolder, runset.name, runset.date)
     print '''
     </select>      
       <br/><input type="submit" value="Submit" name=Submit">
@@ -117,12 +118,12 @@ if __name__ == '__main__':
             print '''
             <tr>
               <td>
-                {0}
-              </td>
-              <td>
                 <input type="checkbox" name="runset" value="{0}">
               </td>
-            </tr>'''.format(runset.runsetFolder)
+              <td>
+                {2}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{1}
+              </td>
+            </tr>'''.format(runset.runsetFolder, runset.name, runset.date)
         print '''
         <tr>
           <td>

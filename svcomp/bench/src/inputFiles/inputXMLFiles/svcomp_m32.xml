@@ -4,7 +4,7 @@
 
   <propertyfile>${sourcefile_path}/ALL.prp</propertyfile>
 
-  <rundefinition name="{SETNAME}">
+  <rundefinition name="{SETNAME}{DESCRIPTION}">
     <option name="--verifier">svcomp</option>
     <option name="--clang-options=-m32"></option>
   </rundefinition>

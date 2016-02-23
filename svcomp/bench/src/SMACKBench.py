@@ -36,6 +36,9 @@ def get_args():
     server.add_argument('-c', '--config-file',
                         default='inputFiles/config.json', metavar='FILE',
                         help='The json file with SMACKBench config settings')
+    server.add_argument('-d', '--description',
+                        default='', metavar='DESC',
+                        help='A description field (identifier) to be associated with each set')
 
     stop = subparsers.add_parser('stop',
                                  help='Stop all instances of SMACKBench')
@@ -56,6 +59,9 @@ def get_args():
     run.add_argument('-c', '--config-file',
                      default='inputFiles/config.json', metavar='FILE',
                      help='The json file with SMACKBench config settings')
+    run.add_argument('-d', '--description',
+                     default='', metavar='DESC',
+                     help='A description field (identifier) to be associated with each set')
     args = parser.parse_args()
     return args
 
@@ -131,7 +137,7 @@ def enqueue(data, filename, lock_folder):
 #######################################
 ###  SMACKBench Server 
 #######################################
-def run_server(cfgObj, queueFile, concurRunCnt, memPerRun):
+def run_server(cfgObj, queueFile, concurRunCnt, memPerRun, desc):
     #Register our sigterm handler, so we can catch it and raise
     #KeyboardInterrupt instead.  This way benchexec's cleanup
     #routines run
@@ -150,7 +156,7 @@ def run_server(cfgObj, queueFile, concurRunCnt, memPerRun):
                 subprocess.call(cmdPre + ['"*.' + ext + '"'] + cmdPost);
             
             job = job.split() #Splits into [<svSet>, <inXmlFile>]
-            runSMACKBench(cfgObj, job[0], job[1], concurRunCnt, memPerRun)
+            runSMACKBench(cfgObj, job[0], job[1], concurRunCnt, memPerRun, desc)
         else:
             #If the queue file is empty, wait 10 seconds
             time.sleep(10)
@@ -168,7 +174,7 @@ def generateOutFolder(cfgObj, svSet):
     os.makedirs(outPath)
     return outPath
 
-def copyInXmlAndInject(cfgObj, outPath, svSet, inXmlFile, memPerRun):
+def copyInXmlAndInject(cfgObj, outPath, svSet, inXmlFile, memPerRun, desc):
     #Deterime the destination input xml file location
     dstInXmlFile = path.join(outPath, path.split(inXmlFile)[-1])
     #Read the input xml file template (must use .. since input xml
@@ -181,6 +187,11 @@ def copyInXmlAndInject(cfgObj, outPath, svSet, inXmlFile, memPerRun):
     #      Replacement vars in use by SMACKBench take the form {varname}
     #Inject set name
     inXmlStr = inXmlStr.replace('{SETNAME}', svSet)
+    #Inject description (we hijack the benchexec setdefinition_name field to 
+    #  contain description.  This allows us to avoid changing xml schema of 
+    #  benchexec in/out xml files.)
+    inXmlStr = inXmlStr.replace('{DESCRIPTION}', 
+                                '' if not desc else '-'+desc.replace(' ',''))
     #Inject memory per concurrent run limit
     inXmlStr = inXmlStr.replace('{MEMLIMIT}', memPerRun)
     #Inject number of cores allowed for each concurrently run benchmark
@@ -226,12 +237,12 @@ def runBenchExec(cfgObj, inXmlFile, outPath, concurRunCnt, debug):
         p.send_signal(signal.SIGINT)
         raise KeyboardInterrupt
         
-def runSMACKBench(cfgObj, svSet, inXmlFile, concurRunCnt, memPerRun):
+def runSMACKBench(cfgObj, svSet, inXmlFile, concurRunCnt, memPerRun, desc):
     #Generate results folder name and create
     outPath = generateOutFolder(cfgObj, svSet)
     #Copy the input xml file template to the new output directory,
     # and inject relevant variables
-    dstInXml = copyInXmlAndInject(cfgObj, outPath, svSet, inXmlFile, memPerRun)
+    dstInXml = copyInXmlAndInject(cfgObj, outPath, svSet, inXmlFile, memPerRun, desc)
     #Call benchexec
     runBenchExec(cfgObj, dstInXml, outPath, concurRunCnt, debug = False)
     #Run witness checking
@@ -272,10 +283,11 @@ if __name__ == '__main__':
                                   stderr=sys.stdout,
                                   stdout=open(logFile, 'a')):
             run_server(cfgObj, path.join('..', args.queue_file),
-                       args.concurrentRuns, args.memoryPerRun)
+                       args.concurrentRuns, args.memoryPerRun, args.description)
         
     else:
         #if here, we're in run mode
         #signal.signal(signal.SIGTERM, handle_sigterm)
         runSMACKBench(cfgObj, args.svcomp_set, args.inputXmlFile,
-                      args.concurrentRuns, args.memoryPerRun)
+                      args.concurrentRuns, args.memoryPerRun,
+                      args.description)
