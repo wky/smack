@@ -49,8 +49,44 @@ Executing `which smack.sh` after package installation will ensure that
 With SMACK properly installed and available on environment `PATH` (`smack.sh`
 for packaged install, `smack` for repo install), SMACKBench is ready for use.
 
-There are two modes in which SMACKBench can run, `server` mode, and `run` mode.
+There are two modes in which SMACKBench can run, `run` mode, and `server` mode.
+
+<Generic info here, about svcomp sets, input xml files, etc.  Witcheck>
 
 ###`run` Mode
+`run` mode is for executing a single SVCOMP benchmark set.  This allows a
+specific set to be executed, and the stdout of SMACKBench is routed to the
+console.
+
+`SMACKBench.py` should be executed from the SMACKBench installation directory
+(`/proj/<projectName>/SMACKBenchResults/` on emulab, as per
+[SMACKBench Installation](SMACKBenchInstallation.md)).
+
+>usage: SMACKBench.py run [-h] -s SET -x FILE [-r NUM] [-m NUM] [-c FILE]
+>                         [-d DESC]
+>
+>optional arguments:
+>  -h, --help            show this help message and exit
+>  -s SET, --svcomp-set SET
+>                        The svcomp set to execute (default: None)
+>  -x FILE, --inputXmlFile FILE
+>                        The input XML file with which to run svcomp-set
+>                        (default: None)
+>  -r NUM, --concurrentRuns NUM
+>                        The number of concurrent benchmarks to run (default:
+>                        8)
+>  -m NUM, --memoryPerRun NUM
+>                        Amount of memory per concurrent run (in MB) (default:
+>                        15000)
+>  -c FILE, --config-file FILE
+>                        The json file with SMACKBench config settings
+>                        (default: inputFiles/config.json)
+>  -d DESC, --description DESC
+>                        A description field (identifier) to be associated with
+>                        each set (default: )
+
+An example call providing only the required switches (that is, accepting the
+default options where available) might be:
+`./SMACKBench.py -s Simple -x inputFiles/inputXMLFiles/svcomp_m32_witcheck_packaged.xml`
 
 ###`server` Mode
