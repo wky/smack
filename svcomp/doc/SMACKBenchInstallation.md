@@ -12,6 +12,14 @@ With that said, a small section can be found near the end of this document with
 guidelines for patching together a SMACKBench installation on a single machine.
 
 ##Emulab Installation
+Emulab is a shared testbed infrastructure available to researchers.  As such,
+hardware must be shared by research teams.  This means experiments get swapped
+out after a certain amount of time.  A consequence of this is that prerequisites
+must be reinstalled every time a node gets swapped in.  To automate this,
+build scripts are available for each type of node.  These will install 
+prerequisites on both compute nodes, and the webserver node.  The SMACKBench
+installation itself installs to shared storage, and only has to be done once.
+
 To facilitate easy emulab setup, `.ns` files have been included in the 
 `svcomp/emulabSetup` folder.  These `.ns` files are configuration files for 
 emulab, and they specify hardware selection, drive configuration, OS selection,
