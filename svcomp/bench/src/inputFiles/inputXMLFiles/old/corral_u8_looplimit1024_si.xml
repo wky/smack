@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE benchmark SYSTEM "benchmark.dtd">
-<benchmark tool="smack_benchexec_driver" timelimit="900" hardtimelimit="930" memlimit="{MEMLIMIT}" cpuCores="{CORELIMIT}">
+<benchmark tool="smack_built" timelimit="900" hardtimelimit="930" memlimit="{MEMLIMIT}" cpuCores="{CORELIMIT}">
 
   <propertyfile>${sourcefile_path}/ALL.prp</propertyfile>
 
