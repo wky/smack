@@ -874,7 +874,7 @@ std::string SmackRep::getPrelude() {
   s << "\n";
 
   s << "// Basic constants" << "\n";
-  s << Decl::constant("$0",intType(32)) << "\n";
+  s << Decl::constant("$0",intType(32), {Attr::attr(Naming::AV_SCALAR_TYPE)}, false) << "\n";
   s << Decl::axiom(Expr::eq(Expr::id("$0"),integerLit(0UL,32))) << "\n";
 
   for (unsigned i : REF_CONSTANTS) {

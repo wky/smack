@@ -355,7 +355,7 @@ public:
   static Decl* constant(std::string name, std::string type);
   static Decl* constant(std::string name, std::string type, bool unique);
   static Decl* constant(std::string name, std::string type, std::list<const Attr*> ax, bool unique);
-  static Decl* variable(std::string name, std::string type);
+  static Decl* variable(std::string name, std::string type, std::list<const Attr*> ax = {});
   static ProcDecl* procedure(std::string name,
     std::list< std::pair<std::string,std::string> > params = std::list< std::pair<std::string,std::string> >(),
     std::list< std::pair<std::string,std::string> > rets = std::list< std::pair<std::string,std::string> >(),
@@ -407,7 +407,7 @@ public:
 class VarDecl : public Decl {
   std::string type;
 public:
-  VarDecl(std::string n, std::string t) : Decl(VARIABLE, n, {}), type(t) {}
+  VarDecl(std::string n, std::string t, std::list<const Attr*> ax) : Decl(VARIABLE, n, ax), type(t) {}
   void print(std::ostream& os) const;
   static bool classof(const Decl* D) { return D->getKind() == VARIABLE; }
 };

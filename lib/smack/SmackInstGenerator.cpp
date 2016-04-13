@@ -57,9 +57,12 @@ Block* SmackInstGenerator::getBlock(llvm::BasicBlock* bb) {
 void SmackInstGenerator::nameInstruction(llvm::Instruction& inst) {
   if (inst.getType()->isVoidTy())
     return;
+  
+  std::list<const Attr*> ax = {};
+  if (!inst.getType()->isPointerTy())
+    ax.push_back(Attr::attr(Naming::AV_SCALAR_TYPE));
   proc.getDeclarations().push_back(
-    Decl::variable(naming.get(inst), rep.type(&inst))
-  );
+    Decl::variable(naming.get(inst), rep.type(&inst), ax));
 }
 
 void SmackInstGenerator::annotate(llvm::Instruction& I, Block* B) {

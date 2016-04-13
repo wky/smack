@@ -219,8 +219,8 @@ Decl* Decl::constant(std::string name, std::string type, bool unique) {
 Decl* Decl::constant(std::string name, std::string type, std::list<const Attr*> ax, bool unique) {
   return new ConstDecl(name, type, ax, unique);
 }
-Decl* Decl::variable(std::string name, std::string type) {
-  return new VarDecl(name, type);
+Decl* Decl::variable(std::string name, std::string type, std::list<const Attr*> ax) {
+  return new VarDecl(name, type, ax);
 }
 ProcDecl* Decl::procedure(std::string name,
     std::list< std::pair<std::string,std::string> > args, std::list< std::pair<std::string,std::string> > rets,
@@ -568,9 +568,10 @@ void FuncDecl::print(std::ostream& os) const {
 }
 
 void VarDecl::print(std::ostream& os) const {
+  os << "var ";
   if (attrs.size() > 0)
     print_seq<const Attr*>(os, attrs, "", " ", " ");
-  os << "var " << name << ": " << type << ";";
+  os << name << ": " << type << ";";
 }
 
 void ProcDecl::print(std::ostream& os) const {
