@@ -10,6 +10,7 @@
 #include "llvm/IR/User.h"
 #include "llvm/IR/InstIterator.h"
 #include "llvm/IR/Instruction.h"
+#include "llvm/IR/IRBuilder.h"
 
 
 namespace smack {
@@ -20,6 +21,6 @@ public:
   StubProcInst() : llvm::ModulePass(ID) {}
   virtual bool runOnModule(llvm::Module& M);
 private:
-  std::string CreateVarName(std::string prefix, unsigned seq = 0);
+  std::string CreateVarName(unsigned& seq);
 };
 }
