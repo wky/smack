@@ -31,6 +31,7 @@
 #include "smack/RemoveDeadDefs.h"
 #include "smack/ExtractContracts.h"
 #include "smack/SimplifyLibCalls.h"
+#include "smack/StubProcInst.h"
 
 static llvm::cl::opt<std::string>
 InputFilename(llvm::cl::Positional, llvm::cl::desc("<input LLVM bitcode file>"),
@@ -99,6 +100,7 @@ int main(int argc, char **argv) {
 
   llvm::PassManager pass_manager;
 
+  pass_manager.add(new smack::StubProcInst());
   pass_manager.add(new DataLayoutPass());
   pass_manager.add(llvm::createLowerSwitchPass());
   pass_manager.add(llvm::createCFGSimplificationPass());

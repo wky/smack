@@ -728,10 +728,22 @@ ProcDecl* SmackRep::procedure(Function* F, CallInst* CI) {
   std::list<Decl*> decls;
   std::list<Block*> blocks;
 
+  if (F->hasFnAttribute("av-inst"))
+    F->deleteBody();
+
   for (auto &A : F->getArgumentList()) {
     std::list<std::string> argsList;
     if (!A.getType()->isPointerTy())
       argsList.push_back(Attr::attr(Naming::AV_SCALAR_TYPE)->toString());
+    if (F->hasFnAttribute("av-inst")) {
+      if (auto t = dyn_cast<const PointerType>(A.getType())) {
+        std::string memRegion = memPath(regions.idx(&A));
+        memRegion = "\"" + memRegion + "\"";
+        if (t->getElementType()->isPointerTy()) {
+          argsList.push_back(Attr::attr("ref", {Expr::id(memRegion)})->toString());
+        }
+      }
+    }
     params.push_back(std::make_tuple(naming.get(A), type(A.getType()), argsList));
   }
 
