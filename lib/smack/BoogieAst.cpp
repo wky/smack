@@ -222,12 +222,12 @@ Decl* Decl::constant(std::string name, std::string type, std::list<const Attr*> 
 Decl* Decl::variable(std::string name, std::string type, std::list<const Attr*> ax) {
   return new VarDecl(name, type, ax);
 }
-ProcDecl* procedure(std::string name,
-    std::list< std::tuple<std::string,std::string,std::list<std::string> > > params = std::list< std::tuple<std::string,std::string,std::list<std::string> > >(),
-    std::list< std::tuple<std::string,std::string,std::list<std::string> > > rets = std::list< std::tuple<std::string,std::string,std::list<std::string> > >(),
-    std::list<Decl*> decls = std::list<Decl*>(),
-    std::list<Block*> blocks = std::list<Block*>()) {
-  return new ProcDecl(name, args, rets, decls, blocks);
+ProcDecl* Decl::procedure(std::string name,
+    std::list< std::tuple<std::string,std::string,std::list<std::string> > > params,
+    std::list< std::tuple<std::string,std::string,std::list<std::string> > > rets,
+    std::list<Decl*> decls,
+    std::list<Block*> blocks) {
+  return new ProcDecl(name, params, rets, decls, blocks);
 }
 Decl* Decl::code(std::string name, std::string s) {
   return new CodeDecl(name, s);
@@ -236,12 +236,14 @@ Decl* Decl::code(std::string name, std::string s) {
 FuncDecl* Decl::code(ProcDecl* P) {
   std::list<Decl*> decls;
   std::list<Block*> blocks;
+  std::list<std::pair<std::string, std::string> > params;
+
   for (auto B : *P) {
     blocks.push_back(Block::block(B->getName()));
     for (auto S : *B) {
       const Stmt* SS;
       if (llvm::isa<ReturnStmt>(S))
-        SS = Stmt::return_(Expr::neq(Expr::id(P->getReturns().front().first),Expr::lit(0U)));
+        SS = Stmt::return_(Expr::neq(Expr::id(std::get<0>(P->getReturns().front())),Expr::lit(0U)));
       else
         SS = S;
       blocks.back()->getStatements().push_back(SS);
@@ -254,10 +256,14 @@ FuncDecl* Decl::code(ProcDecl* P) {
   decls.push_back(Decl::variable(Naming::EXN_VAR, "bool"));
 
   for (auto R : P->getReturns())
-    decls.push_back(Decl::variable(R.first, R.second));
+    decls.push_back(Decl::variable(std::get<0>(R), std::get<1>(R)));
+
+  for (auto param : P->getParameters())
+    params.push_back({std::get<0>(param), std::get<1>(param)});
+    
 
   return Decl::function(
-    P->getName(), P->getParameters(), "bool", new CodeExpr(decls, blocks),
+    P->getName(), params, "bool", new CodeExpr(decls, blocks),
     {Attr::attr("inline")}
   );
 }
@@ -599,7 +605,7 @@ void ProcDecl::print(std::ostream& os) const {
     for (auto R = rets.begin(), E = rets.end(); R != E; ++R) {
       os << (R == rets.begin() ? "" : ", ");
       print_seq<std::string>(os, std::get<2>(*R), "", " ", " ");
-      os << std::get<0>(*P) << ": " << std::get<1>(*P);
+      os << std::get<0>(*R) << ": " << std::get<1>(*R);
     }
     os << ")";
   }

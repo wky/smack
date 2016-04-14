@@ -360,7 +360,7 @@ public:
   static Decl* variable(std::string name, std::string type, std::list<const Attr*> ax = {});
   static ProcDecl* procedure(std::string name,
     std::list< std::tuple<std::string,std::string,std::list<std::string> > > params = std::list< std::tuple<std::string,std::string,std::list<std::string> > >(),
-    std::list< std::tuple<std::string,std::string,std::string> > rets = std::list< std::tuple<std::string,std::string,std::list<std::string> > >(),
+    std::list< std::tuple<std::string,std::string,std::list<std::string> > > rets = std::list< std::tuple<std::string,std::string,std::list<std::string> > >(),
     std::list<Decl*> decls = std::list<Decl*>(),
     std::list<Block*> blocks = std::list<Block*>());
   static Decl* code(std::string name, std::string s);
