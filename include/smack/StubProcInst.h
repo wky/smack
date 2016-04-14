@@ -19,5 +19,7 @@ public:
   static char ID;
   StubProcInst() : llvm::ModulePass(ID) {}
   virtual bool runOnModule(llvm::Module& M);
+private:
+  std::string CreateVarName(std::string prefix, unsigned seq = 0);
 };
 }
