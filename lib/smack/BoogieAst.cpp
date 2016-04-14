@@ -222,9 +222,11 @@ Decl* Decl::constant(std::string name, std::string type, std::list<const Attr*> 
 Decl* Decl::variable(std::string name, std::string type, std::list<const Attr*> ax) {
   return new VarDecl(name, type, ax);
 }
-ProcDecl* Decl::procedure(std::string name,
-    std::list< std::pair<std::string,std::string> > args, std::list< std::pair<std::string,std::string> > rets,
-    std::list<Decl*> decls, std::list<Block*> blocks) {
+ProcDecl* procedure(std::string name,
+    std::list< std::tuple<std::string,std::string,std::list<std::string> > > params = std::list< std::tuple<std::string,std::string,std::list<std::string> > >(),
+    std::list< std::tuple<std::string,std::string,std::list<std::string> > > rets = std::list< std::tuple<std::string,std::string,std::list<std::string> > >(),
+    std::list<Decl*> decls = std::list<Decl*>(),
+    std::list<Block*> blocks = std::list<Block*>()) {
   return new ProcDecl(name, args, rets, decls, blocks);
 }
 Decl* Decl::code(std::string name, std::string s) {
@@ -470,6 +472,12 @@ void Attr::print(std::ostream& os) const {
   os << "}";
 }
 
+std::string Attr::toString() const {
+  std::stringstream ss;
+  print(ss);
+  return ss.str();
+}
+
 void AssertStmt::print(std::ostream& os) const {
   os << "assert ";
   if (attrs.size() > 0)
@@ -579,14 +587,20 @@ void ProcDecl::print(std::ostream& os) const {
   if (attrs.size() > 0)
     print_seq<const Attr*>(os, attrs, "", " ", " ");
   os << name << "(";
-  for (auto P = params.begin(), E = params.end(); P != E; ++P)
-    os << (P == params.begin() ? "" : ", ") << P->first << ": " << P->second;
+  for (auto P = params.begin(), E = params.end(); P != E; ++P) {
+    os << (P == params.begin() ? "" : ", ");
+    print_seq<std::string>(os, std::get<2>(*P), "", " ", " ");
+    os << std::get<0>(*P) << ": " << std::get<1>(*P);
+  }
   os << ")";
   if (rets.size() > 0) {
     os << "\n";
     os << "  returns (";
-    for (auto R = rets.begin(), E = rets.end(); R != E; ++R)
-      os << (R == rets.begin() ? "" : ", ") << R->first << ": " << R->second;
+    for (auto R = rets.begin(), E = rets.end(); R != E; ++R) {
+      os << (R == rets.begin() ? "" : ", ");
+      print_seq<std::string>(os, std::get<2>(*R), "", " ", " ");
+      os << std::get<0>(*P) << ": " << std::get<1>(*P);
+    }
     os << ")";
   }
   if (blocks.size() == 0)

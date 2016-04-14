@@ -384,10 +384,13 @@ const Stmt* SmackRep::returnValueAnnotation(const CallInst& CI) {
   assert(CI.getNumArgOperands() == 0 && "Expected no operands.");
   Type* T = CI.getParent()->getParent()->getReturnType();
   std::string name = indexedName(Naming::VALUE_PROC, {type(T)});
+  std::list<std::string> attrList;
+  if (!T->isPointerTy())
+    attrList.push_back(Attr:attr(Naming::AV_SCALAR_TYPE)->toString());
   auxDecls[name] = Decl::procedure(
     name,
-    std::list< std::pair<std::string,std::string> >({{"p", type(T)}}),
-    std::list< std::pair<std::string,std::string> >({{Naming::RET_VAR, Naming::PTR_TYPE}}));
+    std::list< std::tuple<std::string,std::string, std::list<std::string> > >({{"p", type(T), attrList}}),
+    std::list< std::tuple<std::string,std::string, std::list<std::string> > >({{Naming::RET_VAR, Naming::PTR_TYPE, {}}}));
   return Stmt::call(
     name,
     std::list<const Expr*>({ Expr::id(Naming::RET_VAR) }),
@@ -721,15 +724,23 @@ const Expr* SmackRep::cmp(unsigned predicate, const llvm::Value* lhs, const llvm
 ProcDecl* SmackRep::procedure(Function* F, CallInst* CI) {
   assert(F && "Unknown function call.");
   std::string name = naming.get(*F);
-  std::list< std::pair<std::string,std::string> > params, rets;
+  std::list< std::tuple<std::string,std::string, std::list<std::string> > > params, rets;
   std::list<Decl*> decls;
   std::list<Block*> blocks;
 
-  for (auto &A : F->getArgumentList())
-    params.push_back({naming.get(A), type(A.getType())});
+  for (auto &A : F->getArgumentList()) {
+    std::list<std::string> argsList;
+    if (!A.getType()->isPointerTy())
+      argList.push_back(Attr::attr(Naming::AV_SCALAR_TYPE)->toString());
+    params.push_back({naming.get(A), type(A.getType()), argsList});
+  }
 
-  if (!F->getReturnType()->isVoidTy())
-    rets.push_back({Naming::RET_VAR, type(F->getReturnType())});
+  if (!F->getReturnType()->isVoidTy()) {
+    std::list<std::string> retsList;
+    if (!F->getReturnType()->isPointerTy())
+      retsList.push_back(Attr::attr(Naming::AV_SCALAR_TYPE)->toString());
+    rets.push_back({Naming::RET_VAR, type(F->getReturnType()), retsList});
+  }
 
   if (name == "malloc") {
     Type* W = F->getFunctionType()->getParamType(0);
@@ -738,7 +749,7 @@ ProcDecl* SmackRep::procedure(Function* F, CallInst* CI) {
     blocks.push_back(
       Block::block("", {
         Stmt::call(Naming::ALLOC,
-          { integerToPointer(Expr::id(params.front().first), width) },
+          { integerToPointer(Expr::id(std::get<0>(params.front())), width) },
           { Naming::RET_VAR }
         )
       })
@@ -747,21 +758,26 @@ ProcDecl* SmackRep::procedure(Function* F, CallInst* CI) {
   } else if (name == "free_") {
     blocks.push_back(
       Block::block("", {
-        Stmt::call(Naming::FREE, {Expr::id(params.front().first)})
+        Stmt::call(Naming::FREE, {Expr::id(std::get<0>(params.front()))})
       })
     );
 
   } else if (name.find(Naming::CONTRACT_EXPR) != std::string::npos) {
+    //TODO: map memoryMaps to tuple
     for (auto m : memoryMaps())
-      params.push_back(m);
+      params.push_back({m.first(), m.second(), {}});
 
   } else if (CI) {
     FunctionType* T = F->getFunctionType();
     name = procName(*CI, F);
     for (unsigned i = T->getNumParams(); i < CI->getNumArgOperands(); i++) {
+      std::list<std::string> ciArgs;
+      if (CI->getOperand(i)->getType()->isPointerTy())
+        ciArgs.push_back(Attr::attr(Naming::AV_SCALAR_TYPE));
       params.push_back({
         indexedName("p",{i}),
-        type(CI->getOperand(i)->getType())
+        type(CI->getOperand(i)->getType()),
+        ciArgs
       });
     }
   }

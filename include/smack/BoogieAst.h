@@ -12,6 +12,7 @@
 #include <vector>
 #include <list>
 #include <set>
+#include <tuple>
 
 namespace smack {
 
@@ -182,6 +183,7 @@ protected:
 public:
   Attr(std::string n, std::initializer_list<const Expr*> vs) : name(n), vals(vs) {}
   void print(std::ostream& os) const;
+  std::string toString() const;
 
   static const Attr* attr(std::string s);
   static const Attr* attr(std::string s, std::string v);
@@ -357,8 +359,8 @@ public:
   static Decl* constant(std::string name, std::string type, std::list<const Attr*> ax, bool unique);
   static Decl* variable(std::string name, std::string type, std::list<const Attr*> ax = {});
   static ProcDecl* procedure(std::string name,
-    std::list< std::pair<std::string,std::string> > params = std::list< std::pair<std::string,std::string> >(),
-    std::list< std::pair<std::string,std::string> > rets = std::list< std::pair<std::string,std::string> >(),
+    std::list< std::tuple<std::string,std::string,std::list<std::string> > > params = std::list< std::tuple<std::string,std::string,std::list<std::string> > >(),
+    std::list< std::tuple<std::string,std::string,std::string> > rets = std::list< std::tuple<std::string,std::string,std::list<std::string> > >(),
     std::list<Decl*> decls = std::list<Decl*>(),
     std::list<Block*> blocks = std::list<Block*>());
   static Decl* code(std::string name, std::string s);
@@ -474,7 +476,7 @@ public:
 };
 
 class ProcDecl : public Decl, public CodeContainer {
-  typedef std::pair<std::string,std::string> Parameter;
+  typedef std::tuple<std::string,std::string,std::list<std::string> > Parameter;
   typedef std::list<Parameter> ParameterList;
   typedef std::list<const Expr*> SpecificationList;
 
