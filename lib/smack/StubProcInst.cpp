@@ -25,15 +25,16 @@ std::string StubProcInst::CreateVarName(unsigned& seq)
 
 bool StubProcInst::runOnModule(Module& M) {
 
-    std::vector<llvm::Value*>allocaInsts;
-    std::vector<llvm::Value*>storeArgInsts;
-    std::vector<llvm::Value*>dpArgs;
-    llvm::Value* retV = nullptr;
-    unsigned int regCounter;
     
     for (Module::iterator F = M.begin(); F != M.end(); ++F) {
        if (!F->isDeclaration())
         continue;
+
+       std::vector<llvm::Value*>allocaInsts;
+       std::vector<llvm::Value*>storeArgInsts;
+       std::vector<llvm::Value*>dpArgs;
+       llvm::Value* retV = nullptr;
+       unsigned int regCounter;
 
        for (auto &arg : F->getArgumentList()) {
           if (const PointerType* t = dyn_cast<const PointerType>(arg.getType()))
