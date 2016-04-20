@@ -80,6 +80,7 @@ void* __VERIFIER_nondet_pointer(void) {
   return __VERIFIER_nondet();
 }
 
+/*
 void* calloc(unsigned long num, unsigned long size) {
   void* ret;
   if (__VERIFIER_nondet_int()) {
@@ -90,6 +91,7 @@ void* calloc(unsigned long num, unsigned long size) {
   }
   return ret;
 }
+*/
 
 void __SMACK_dummy(int v) {
   __SMACK_code("assume true;");

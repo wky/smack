@@ -96,7 +96,10 @@ bool StubProcInst::runOnModule(Module& M) {
             else
               callFunc = "__VERIFIER_nondet_bool";
             ret = builder.CreateCall(M.getNamedValue(callFunc), None, "call" + std::to_string(dpArgs.size()));
-          } else
+          } else if (t->isFloatTy() || t->isDoubleTy())
+            ret = builder.CreateSIToFP(builder.CreateCall(M.getNamedValue("__VERIFIER_nondet_int"), None, "call" + std::to_string(dpArgs.size())),
+            t, "conv");
+	  else
             assert(0 && "Return Type not supported");
           builder.CreateRet(ret);
         } else
