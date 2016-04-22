@@ -159,6 +159,7 @@ add_library(smackTranslator STATIC
   include/smack/SmackRep.h
   include/smack/SmackRepFlatMem.h
   include/smack/StubProcInst.h
+  include/smack/MemorySafetyChecker.h
   lib/smack/BoogieAst.cpp
   lib/smack/BplFilePrinter.cpp
   lib/smack/BplPrinter.cpp
@@ -175,6 +176,7 @@ add_library(smackTranslator STATIC
   lib/smack/SmackRep.cpp
   lib/smack/SmackRepFlatMem.cpp
   lib/smack/StubProcInst.cpp
+  lib/smack/MemorySafetyChecker.cpp
 )
 
 add_executable(llvm2bpl
