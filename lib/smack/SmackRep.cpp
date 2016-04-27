@@ -579,6 +579,10 @@ const Expr* SmackRep::lit(const llvm::Value* v) {
     llvm_unreachable("Literal type not supported");
 }
 
+std::string SmackRep::getBasePtr(const llvm::GetElementPtrInst* I) {
+  return naming.get(*(I->getPointerOperand()));
+}
+
 const Expr* SmackRep::ptrArith(const llvm::GetElementPtrInst* I) {
   std::vector< std::pair<Value*, Type*> > args;
   gep_type_iterator T = gep_type_begin(I);
