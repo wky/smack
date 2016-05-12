@@ -110,6 +110,10 @@ const Expr* Expr::sel(std::string b, std::string i) {
   return new SelExpr(id(b), id(i));
 }
 
+const Expr* Expr::if_then_else(const Expr* c, const Expr* t, const Expr* e) {
+  return new IfThenElseExpr(c, t, e);
+}
+
 const Attr* Attr::attr(std::string s, std::initializer_list<const Expr*> vs) {
   return new Attr(s,vs);
 }
@@ -447,6 +451,12 @@ void QuantExpr::print(std::ostream& os) const {
 void SelExpr::print(std::ostream& os) const {
   os << base;
   print_seq<const Expr*>(os, idxs, "[", ", ", "]");
+}
+
+void IfThenElseExpr::print(std::ostream& os) const {
+  os << "if " << cond_expr;
+  os << " then " << then_expr;
+  os << " else " << else_expr;
 }
 
 void UpdExpr::print(std::ostream& os) const {

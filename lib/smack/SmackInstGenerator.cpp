@@ -432,11 +432,13 @@ void SmackInstGenerator::visitSelectInst(llvm::SelectInst& i) {
    *v1 = rep.expr(i.getOperand(1)),
     *v2 = rep.expr(i.getOperand(2));
 
-  emit(Stmt::havoc(x));
-  emit(Stmt::assume(Expr::and_(
-    Expr::impl(Expr::eq(c,rep.integerLit(1L,1)), Expr::eq(Expr::id(x), v1)),
-    Expr::impl(Expr::neq(c,rep.integerLit(1L,1)), Expr::eq(Expr::id(x), v2))
-  )));
+  //emit(Stmt::havoc(x));
+  //emit(Stmt::assume(Expr::and_(
+  //  Expr::impl(Expr::eq(c,rep.integerLit(1L,1)), Expr::eq(Expr::id(x), v1)),
+  //  Expr::impl(Expr::neq(c,rep.integerLit(1L,1)), Expr::eq(Expr::id(x), v2))
+  //)));
+  emit(Stmt::assign(Expr::id(x),
+    Expr::if_then_else(Expr::eq(c, rep.integerLit(1L, 1)), v1, v2)));
 }
 
 void SmackInstGenerator::visitCallInst(llvm::CallInst& ci) {

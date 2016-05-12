@@ -43,6 +43,7 @@ public:
   static const Expr* not_(const Expr* e);
   static const Expr* sel(const Expr* b, const Expr* i);
   static const Expr* sel(std::string b, std::string i);
+  static const Expr* if_then_else(const Expr* c, const Expr* t, const Expr* e);
 };
 
 class BinExpr : public Expr {
@@ -173,6 +174,16 @@ class VarExpr : public Expr {
 public:
   VarExpr(std::string v) : var(v) {}
   std::string name() const { return var; }
+  void print(std::ostream& os) const;
+};
+
+class IfThenElseExpr: public Expr {
+  const Expr* cond_expr;
+  const Expr* then_expr;
+  const Expr* else_expr;
+public:
+  IfThenElseExpr(const Expr* c, const Expr* t, const Expr* e)
+    : cond_expr(c), then_expr(t), else_expr(e) {}
   void print(std::ostream& os) const;
 };
 
