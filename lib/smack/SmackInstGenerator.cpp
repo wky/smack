@@ -143,13 +143,14 @@ void SmackInstGenerator::generateGotoStmts(
 
       if (target->getUniquePredecessor() == inst.getParent()) {
         Block* b = getBlock(target);
-        b->insert(Stmt::assume(condition));
+        //b->insert(Stmt::assume(condition));
+        b->insert(Stmt::assume(condition, Attr::attr(Naming::AV_PARTITION)));
         dispatch.push_back(b->getName());
 
       } else {
         Block* b = createBlock();
         annotate(inst, b);
-        b->addStmt(Stmt::assume(condition));
+        b->addStmt(Stmt::assume(condition, Attr::attr(Naming::AV_PARTITION)));
         b->addStmt(Stmt::goto_({getBlock(target)->getName()}));
         dispatch.push_back(b->getName());
       }

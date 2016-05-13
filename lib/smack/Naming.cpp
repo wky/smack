@@ -16,6 +16,7 @@ const std::string Naming::FLOAT_TYPE = "float";
 const std::string Naming::PTR_TYPE = "ref";
 const std::string Naming::NULL_VAL = "$0.ref";
 const std::string Naming::AV_SCALAR_TYPE = "scalar";
+const std::string Naming::AV_PARTITION = "partition";
 
 const std::string Naming::INIT_FUNC_PREFIX = "__SMACK_init_func";
 const std::string Naming::DECLARATIONS_PROC = "__SMACK_decls";
