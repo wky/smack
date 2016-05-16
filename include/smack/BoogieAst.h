@@ -207,7 +207,7 @@ public:
 class Stmt {
 public:
   enum Kind {
-    ASSERT, ASSUME, ASSIGN, HAVOC, GOTO, CALL, RETURN, CODE, COMMENT
+    ASSERT, ASSUME, ASSIGN, HAVOC, GOTO, CALL, RETURN, CODE, COMMENT, COMP
   };
 private:
   const Kind kind;
@@ -238,6 +238,7 @@ public:
   static const Stmt* return_(const Expr* e);
   static const Stmt* skip();
   static const Stmt* code(std::string s);
+  static const Stmt* compound(std::list<const Stmt*> stmts);
   virtual void print(std::ostream& os) const = 0;
 };
 

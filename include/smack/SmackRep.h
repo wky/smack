@@ -30,6 +30,7 @@ protected:
   Naming& naming;
   Program& program;
   Regions& regions;
+  DSAAliasAnalysis& DSA;
   std::vector<std::string> bplGlobals;
 
   long globalsBottom;
@@ -41,7 +42,7 @@ protected:
   std::map<std::string, Decl*> auxDecls;
 
 public:
-  SmackRep(const DataLayout* L, Naming& N, Program& P, Regions& R);
+  SmackRep(const DataLayout* L, Naming& N, Program& P, Regions& R, DSAAliasAnalysis &DSA);
   Program& getProgram() { return program; }
 
 private:

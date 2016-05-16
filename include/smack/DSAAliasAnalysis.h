@@ -113,6 +113,7 @@ public:
   bool isStaticInitd(const llvm::DSNode* n);
   unsigned getPointedTypeSize(const Value* v);
   unsigned getOffset(const Value* v);
+  bool equivNodes(const llvm::DSNode* n1, const llvm::DSNode* n2);
 
   virtual AliasResult alias(const Location &LocA, const Location &LocB);
 
@@ -121,7 +122,6 @@ private:
   std::vector<const llvm::DSNode*> collectMemcpys(llvm::Module &M, MemcpyCollector* mcc);
   std::vector<const llvm::DSNode*> collectStaticInits(llvm::Module &M);
   llvm::DSGraph *getGraphForValue(const llvm::Value *V);
-  bool equivNodes(const llvm::DSNode* n1, const llvm::DSNode* n2);
   unsigned getOffset(const Location* l);
   bool disjoint(const Location* l1, const Location* l2);
 };

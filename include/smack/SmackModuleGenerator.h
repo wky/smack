@@ -35,6 +35,7 @@ public:
     AU.addRequired<DataLayoutPass>();
     AU.addRequired<LoopInfo>();
     AU.addRequired<Regions>();
+    AU.addRequired<DSAAliasAnalysis>();
   }
 
   virtual bool runOnModule(llvm::Module& m) {

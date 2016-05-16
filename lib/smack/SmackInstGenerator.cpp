@@ -16,6 +16,7 @@
 #include <iostream>
 #include "llvm/Support/raw_ostream.h"
 #include "dsa/DSNode.h"
+#include <set>
 
 namespace smack {
 

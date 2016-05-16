@@ -6,6 +6,7 @@
 #include "smack/SmackOptions.h"
 #include "smack/CodifyStaticInits.h"
 #include <queue>
+#include <set>
 
 namespace smack {
 
@@ -68,8 +69,8 @@ bool isCodeString(const llvm::Value* V) {
   return false;
 }
 
-SmackRep::SmackRep(const DataLayout* L, Naming& N, Program& P, Regions& R)
-    : targetData(L), naming(N), program(P), regions(R),
+SmackRep::SmackRep(const DataLayout* L, Naming& N, Program& P, Regions& R, DSAAliasAnalysis& DSA)
+    : targetData(L), naming(N), program(P), regions(R), DSA(DSA),
       globalsBottom(0), externsBottom(-32768), uniqueFpNum(0),
       ptrSizeInBits(targetData->getPointerSizeInBits())
 {
@@ -235,6 +236,33 @@ const Stmt* SmackRep::memcpy(const llvm::MemCpyInst& mci) {
     *len = mci.getArgOperand(2),
     *aln = mci.getArgOperand(3),
     *vol = mci.getArgOperand(4);
+
+  const llvm::DSNode* n1 = DSA.getNode(dst);
+  const llvm::DSNode* n2 = DSA.getNode(src);
+
+  if (DSA.equivNodes(n1, n2) && llvm::isa<llvm::ConstantInt>(len)) {
+    //return Stmt::comment("That's interesting!");
+    std::list<const Expr*> locs1;
+    std::list<const Expr*> locs2;
+
+    for (llvm::DSNode::const_type_iterator tn = n1->type_begin();
+      tn != n1->type_end(); ++tn) {
+      unsigned offset = tn->first;
+      SuperSet<llvm::Type*>::setPtr TypeSet = tn->second;
+      unsigned field_length = 0;
+
+      if (TypeSet) {
+        for (svset<Type*>::const_iterator ni = TypeSet->begin();
+          ni != TypeSet->end(); ++ni)
+          field_length = storageSize(*ni);
+      }
+
+      locs1.push_back(Expr::sel(Expr::id(memReg(r1)), pa(expr(dst), offset)));
+      locs2.push_back(Expr::sel(Expr::id(memReg(r2)), pa(expr(src), offset)));
+    }
+
+    return Stmt::assign(locs1, locs2);
+  }
 
   return Stmt::call(P->getName(), {
     Expr::id(memReg(r1)),
