@@ -658,7 +658,7 @@ void Block::print(std::ostream& os) const {
 }
 
 void CompoundStmt::print(std::ostream& os) const {
-  print_seq<const Stmt*>(os, stmts, "  ", "\n  ", "");
+  print_seq<const Stmt*>(os, stmts, "", "\n  ", "");
 }
 
 void Program::print(std::ostream& os) const {
