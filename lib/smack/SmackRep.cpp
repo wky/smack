@@ -240,10 +240,12 @@ const Stmt* SmackRep::memcpy(const llvm::MemCpyInst& mci) {
   const llvm::DSNode* n1 = DSA.getNode(dst);
   const llvm::DSNode* n2 = DSA.getNode(src);
 
-  if (DSA.equivNodes(n1, n2) && llvm::isa<llvm::ConstantInt>(len)) {
+  if (DSA.equivNodes(n1, n2) && llvm::isa<llvm::ConstantInt>(len)
+      && !SmackOptions::BitPrecise) {
     //return Stmt::comment("That's interesting!");
-    std::list<const Expr*> locs1;
-    std::list<const Expr*> locs2;
+    //std::list<const Expr*> locs1;
+    //std::list<const Expr*> locs2;
+    std::list <const Stmt*> assigns;
 
     for (llvm::DSNode::const_type_iterator tn = n1->type_begin();
       tn != n1->type_end(); ++tn) {
@@ -257,11 +259,14 @@ const Stmt* SmackRep::memcpy(const llvm::MemCpyInst& mci) {
           field_length = storageSize(*ni);
       }
 
-      locs1.push_back(Expr::sel(Expr::id(memReg(r1)), pa(expr(dst), offset)));
-      locs2.push_back(Expr::sel(Expr::id(memReg(r2)), pa(expr(src), offset)));
+      //locs1.push_back(Expr::sel(Expr::id(memReg(r1)), pa(expr(dst), offset)));
+      //locs2.push_back(Expr::sel(Expr::id(memReg(r2)), pa(expr(src), offset)));
+      assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r1)), pa(expr(dst), offset)),
+        Expr::sel(Expr::id(memReg(r2)), pa(expr(src), offset))));
     }
 
-    return Stmt::assign(locs1, locs2);
+    //return Stmt::assign(locs1, locs2);
+      return Stmt::compound(assigns);
   }
 
   return Stmt::call(P->getName(), {

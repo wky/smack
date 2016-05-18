@@ -330,6 +330,14 @@ public:
   static bool classof(const Stmt* S) { return S->getKind() == CODE; }
 };
 
+class CompoundStmt : public Stmt {
+  std::list<const Stmt*> stmts;
+public:
+  CompoundStmt(std::list<const Stmt*> stmts) : Stmt(COMP), stmts(stmts) {}
+  void print(std::ostream& os) const;
+  static bool classof(const Stmt* S) { return S->getKind() == COMP; }
+};
+
 class Block;
 class ProcDecl;
 class FuncDecl;
