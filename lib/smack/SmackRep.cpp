@@ -786,7 +786,7 @@ ProcDecl* SmackRep::procedure(Function* F, CallInst* CI) {
 
   if (!F->getReturnType()->isVoidTy()) {
     std::list<std::string> retsList;
-    if (!F->getReturnType()->isPointerTy())
+    if (!F->getReturnType()->isPointerTy() && !F->isDeclaration())
       retsList.push_back(Attr::attr(Naming::AV_SCALAR_TYPE)->toString());
     rets.push_back(std::make_tuple(Naming::RET_VAR, type(F->getReturnType()), retsList));
   }
