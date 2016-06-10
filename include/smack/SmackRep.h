@@ -122,6 +122,8 @@ public:
   std::string code(llvm::CallInst& ci);
 
   const Stmt* alloca(llvm::AllocaInst& i);
+  unsigned getMemIntrinsicLength(const llvm::ConstantInt* l);
+  void flattenMemcpy(llvm::Type* curType, unsigned curOffset, std::list<unsigned>& indices);
   const Stmt* memcpy(const llvm::MemCpyInst& msi);
   const Stmt* memset(const llvm::MemSetInst& msi);
   const Expr* load(const llvm::Value* P);

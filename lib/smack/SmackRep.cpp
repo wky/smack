@@ -216,6 +216,35 @@ const Stmt* SmackRep::alloca(llvm::AllocaInst& i) {
   return Stmt::call(Naming::ALLOC,{size},{naming.get(i)});
 }
 
+unsigned SmackRep::getMemIntrinsicLength(const llvm::ConstantInt* l) {
+  return l->getValue().getZExtValue();
+}
+
+void SmackRep::flattenMemcpy(llvm::Type* curType, unsigned curOffset, std::list<unsigned>& indices) {
+  if (auto structType = llvm::dyn_cast<llvm::StructType>(curType)) {
+    const llvm::StructLayout* structData = targetData->getStructLayout(structType);
+    for (unsigned ti = 0, elemOffset = curOffset; ti < structType->getNumElements(); ++ti) {
+      elemOffset = curOffset + structData->getElementOffset(ti);
+      llvm::Type* elemType = structType->getElementType(ti);
+      if(!elemType->isAggregateType())
+        indices.push_back(elemOffset);
+      else
+        flattenMemcpy(elemType, elemOffset, indices);
+    }
+  }
+
+  if (auto arrayType = llvm::dyn_cast<llvm::ArrayType>(curType)) {
+    llvm::Type* elemType = arrayType->getElementType();
+    for (unsigned ai = 0, elemOffset = curOffset; ai < arrayType->getNumElements(); ++ai) {
+      elemOffset = curOffset + offset(arrayType, ai);
+      if (!elemType->isAggregateType())
+        indices.push_back(elemOffset);
+      else
+        flattenMemcpy(elemType, elemOffset, indices);
+    }
+  }
+}
+
 const Stmt* SmackRep::memcpy(const llvm::MemCpyInst& mci) {
   unsigned length;
   if (auto CI = dyn_cast<ConstantInt>(mci.getLength()))
@@ -237,38 +266,64 @@ const Stmt* SmackRep::memcpy(const llvm::MemCpyInst& mci) {
     *aln = mci.getArgOperand(3),
     *vol = mci.getArgOperand(4);
 
-  const llvm::DSNode* n1 = DSA.getNode(dst);
-  const llvm::DSNode* n2 = DSA.getNode(src);
+  const Value *rdst = mci.getDest();
+  const Value *rsrc = mci.getSource();
 
-  if (DSA.equivNodes(n1, n2) && llvm::isa<llvm::ConstantInt>(len)
+  Type *rdst_type = (llvm::cast<llvm::PointerType>(rdst->getType()))->getElementType();
+  Type *rsrc_type = (llvm::cast<llvm::PointerType>(rsrc->getType()))->getElementType();
+
+  if (rdst_type->getTypeID() == rsrc_type->getTypeID()
+      && llvm::isa<llvm::ConstantInt>(len)
       && !SmackOptions::BitPrecise) {
-    //return Stmt::comment("That's interesting!");
-    //std::list<const Expr*> locs1;
-    //std::list<const Expr*> locs2;
     std::list <const Stmt*> assigns;
+    unsigned copiedLen = getMemIntrinsicLength(dyn_cast<const llvm::ConstantInt>(len));
 
-    for (llvm::DSNode::const_type_iterator tn = n1->type_begin();
-      tn != n1->type_end(); ++tn) {
-      unsigned offset = tn->first;
-      SuperSet<llvm::Type*>::setPtr TypeSet = tn->second;
-      unsigned field_length = 0;
-
-      if (TypeSet) {
-        for (svset<Type*>::const_iterator ni = TypeSet->begin();
-          ni != TypeSet->end(); ++ni)
-          field_length = storageSize(*ni);
+    if (auto intType = llvm::dyn_cast<llvm::IntegerType>(rdst_type))
+      if (intType->getBitWidth() >> 3 == copiedLen) {
+        assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r1)), pa(expr(dst), 0UL)),
+          Expr::sel(Expr::id(memReg(r2)), pa(expr(src), 0UL))));
+        return Stmt::compound(assigns);
       }
 
-      //locs1.push_back(Expr::sel(Expr::id(memReg(r1)), pa(expr(dst), offset)));
-      //locs2.push_back(Expr::sel(Expr::id(memReg(r2)), pa(expr(src), offset)));
-      assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r1)), pa(expr(dst), offset)),
-        Expr::sel(Expr::id(memReg(r2)), pa(expr(src), offset))));
+    // TODO: tradeoff (unaligned memory access)
+    if (auto structType = llvm::dyn_cast<llvm::StructType>(rdst_type)) {
+      if (storageSize(rdst_type) == copiedLen) {
+        std::list<unsigned> indices;
+        flattenMemcpy(structType, 0, indices);
+        for (std::list<unsigned>::iterator i = indices.begin(); i != indices.end(); ++i)
+          assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r1)), pa(expr(dst), *i)),
+                Expr::sel(Expr::id(memReg(r2)), pa(expr(src), *i))));
+        return Stmt::compound(assigns);
+      }
     }
-
-    //return Stmt::assign(locs1, locs2);
-      return Stmt::compound(assigns);
   }
 
+//  const llvm::DSNode* n1 = DSA.getNode(dst);
+//  const llvm::DSNode* n2 = DSA.getNode(src);
+//
+//  if (DSA.equivNodes(n1, n2) && llvm::isa<llvm::ConstantInt>(len)
+//      && !SmackOptions::BitPrecise) {
+//    std::list <const Stmt*> assigns;
+//
+//    for (llvm::DSNode::const_type_iterator tn = n1->type_begin();
+//      tn != n1->type_end(); ++tn) {
+//      unsigned offset = tn->first;
+//      SuperSet<llvm::Type*>::setPtr TypeSet = tn->second;
+//      unsigned field_length = 0;
+//
+//      if (TypeSet) {
+//        for (svset<Type*>::const_iterator ni = TypeSet->begin();
+//          ni != TypeSet->end(); ++ni)
+//          field_length = storageSize(*ni);
+//      }
+//
+//      assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r1)), pa(expr(dst), offset)),
+//        Expr::sel(Expr::id(memReg(r2)), pa(expr(src), offset))));
+//    }
+//
+//      return Stmt::compound(assigns);
+//  }
+//
   return Stmt::call(P->getName(), {
     Expr::id(memReg(r1)),
     Expr::id(memReg(r2)),
