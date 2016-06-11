@@ -344,16 +344,39 @@ const Stmt* SmackRep::memset(const llvm::MemSetInst& msi) {
 
   unsigned r = regions.idx(msi.getOperand(0),length);
 
-  const Type* T = regions.get(r).getType();
-  Decl* P = memsetProc(T ? type(T) : intType(8), length);
-  auxDecls[P->getName()] = P;
-
   const Value
     *dst = msi.getArgOperand(0),
     *val = msi.getArgOperand(1),
     *len = msi.getArgOperand(2),
     *aln = msi.getArgOperand(3),
     *vol = msi.getArgOperand(4);
+
+  const Value* rdst = msi.getDest();
+  llvm::Type* rdstT = (llvm::cast<llvm::PointerType>(rdst->getType()))->getElementType();
+
+  if (llvm::isa<llvm::ConstantInt>(val) && llvm::isa<llvm::ConstantInt>(len)) {
+    unsigned setLen = getMemIntrinsicLength(dyn_cast<const llvm::ConstantInt>(len));
+    unsigned valLit = getMemIntrinsicLength(dyn_cast<const llvm::ConstantInt>(val));
+    
+    if (setLen == (getSize(rdstT) >> 3) && valLit == 0) {
+      std::list<const Stmt*> assigns;
+      if (!rdstT->isAggregateType())
+        assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r)), pa(expr(dst), 0UL)),
+          Expr::lit(0U)));
+      else {
+        std::list<unsigned> indices;
+        flattenMemcpy(rdstT, 0, indices);
+        for(std::list<unsigned>::iterator i = indices.begin(); i != indices.end(); ++i)
+          assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r)), pa(expr(dst), *i)),
+            Expr::lit(0U)));
+      }
+      return Stmt::compound(assigns);
+    }
+  }
+
+  const Type* T = regions.get(r).getType();
+  Decl* P = memsetProc(T ? type(T) : intType(8), length);
+  auxDecls[P->getName()] = P;
 
   return Stmt::call(P->getName(), {
     Expr::id(memReg(r)),
