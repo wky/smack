@@ -691,7 +691,14 @@ const Expr* SmackRep::lit(const llvm::Value* v) {
 }
 
 std::string SmackRep::getBasePtr(const llvm::GetElementPtrInst* I) {
-  return naming.get(*(I->getPointerOperand()));
+  const Value* ptrExpr = I->getPointerOperand();
+  if(naming.get(*ptrExpr) != "")
+    return naming.get(*ptrExpr);
+  else if (const ConstantExpr* ptrCast = dyn_cast<const ConstantExpr>(ptrExpr)) {
+    if (ptrCast->isCast())
+      return naming.get(*ptrCast->getOperand(0));
+  }
+  llvm_unreachable("Base pointer type not supported");
 }
 
 const Expr* SmackRep::ptrArith(const llvm::GetElementPtrInst* I) {
