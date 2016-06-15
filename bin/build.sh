@@ -20,10 +20,10 @@
 ################################################################################
 
 # Set these flags to control various installation options
-INSTALL_DEPENDENCIES=1
-BUILD_Z3=1
-BUILD_BOOGIE=1
-BUILD_CORRAL=1
+INSTALL_DEPENDENCIES=0
+BUILD_Z3=0
+BUILD_BOOGIE=0
+BUILD_CORRAL=0
 BUILD_LOCKPWN=0
 BUILD_SMACK=1
 TEST_SMACK=1
@@ -162,7 +162,7 @@ linux-opensuse*)
 
 linux-ubuntu-14*)
   Z3_DOWNLOAD_LINK="https://github.com/Z3Prover/z3/releases/download/z3-4.4.1/z3-4.4.1-x64-ubuntu-14.04.zip"
-  DEPENDENCIES+=" clang-3.6 llvm-3.6 mono-complete libz-dev libedit-dev"
+  DEPENDENCIES+=" mono-complete libz-dev libedit-dev"
   ;;
 
 linux-ubuntu-12*)
@@ -222,15 +222,15 @@ then
     ;;
 
   linux-ubuntu-14*)
-    sudo add-apt-repository "deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-3.6 main"
-    ${WGET} -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
+    #sudo add-apt-repository "deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-3.6 main"
+    #${WGET} -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
     sudo apt-get update
     sudo apt-get install -y ${DEPENDENCIES}
-    sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-3.6 20
-    sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-3.6 20
-    sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-3.6 20
-    sudo update-alternatives --install /usr/bin/llvm-link llvm-link /usr/bin/llvm-link-3.6 20
-    sudo update-alternatives --install /usr/bin/llvm-dis llvm-dis /usr/bin/llvm-dis-3.6 20
+    #sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-3.6 20
+    #sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-3.6 20
+    #sudo update-alternatives --install /usr/bin/llvm-config llvm-config /usr/bin/llvm-config-3.6 20
+    #sudo update-alternatives --install /usr/bin/llvm-link llvm-link /usr/bin/llvm-link-3.6 20
+    #sudo update-alternatives --install /usr/bin/llvm-dis llvm-dis /usr/bin/llvm-dis-3.6 20
     ;;
 
   linux-ubuntu-12*)
@@ -304,7 +304,7 @@ then
 
   cd ${LLVM_DIR}/build/
   cmake ${CMAKE_INSTALL_PREFIX} -DCMAKE_BUILD_TYPE=Release ../src
-  make
+  make -j64
   sudo make install
 
   puts "Built LLVM"
@@ -377,7 +377,7 @@ then
   mkdir -p ${SMACK_DIR}/build
   cd ${SMACK_DIR}/build
   cmake ${CMAKE_INSTALL_PREFIX} -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Debug ..
-  make
+  make -j64
   sudo make install
 
   puts "Configuring shell environment"

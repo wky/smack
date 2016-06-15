@@ -690,13 +690,14 @@ const Expr* SmackRep::lit(const llvm::Value* v) {
     llvm_unreachable("Literal type not supported");
 }
 
-std::string SmackRep::getBasePtr(const llvm::GetElementPtrInst* I) {
-  const Value* ptrExpr = I->getPointerOperand();
+std::string SmackRep::getBasePtr(llvm::Value* ptrExpr) {
   if(naming.get(*ptrExpr) != "")
     return naming.get(*ptrExpr);
-  else if (const ConstantExpr* ptrCast = dyn_cast<const ConstantExpr>(ptrExpr)) {
+  else if (ConstantExpr* ptrCast = dyn_cast<ConstantExpr>(ptrExpr)) {
     if (ptrCast->isCast())
-      return naming.get(*ptrCast->getOperand(0));
+      return getBasePtr(ptrCast->getOperand(0));
+    if (ptrCast->isGEPWithNoNotionalOverIndexing())
+      return getBasePtr(ptrCast->getOperand(0));
   }
   llvm_unreachable("Base pointer type not supported");
 }
