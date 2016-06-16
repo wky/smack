@@ -693,11 +693,12 @@ const Expr* SmackRep::lit(const llvm::Value* v) {
 std::string SmackRep::getBasePtr(llvm::Value* ptrExpr) {
   if(naming.get(*ptrExpr) != "")
     return naming.get(*ptrExpr);
-  else if (ConstantExpr* ptrCast = dyn_cast<ConstantExpr>(ptrExpr)) {
-    if (ptrCast->isCast())
-      return getBasePtr(ptrCast->getOperand(0));
-    if (ptrCast->isGEPWithNoNotionalOverIndexing())
-      return getBasePtr(ptrCast->getOperand(0));
+  else if (Constant* constant = dyn_cast<Constant>(ptrExpr)) {
+    if (ConstantPointerNull* null = dyn_cast<ConstantPointerNull>(constant))
+      return "NULL";
+    else if (ConstantExpr* constExpr = dyn_cast<ConstantExpr>(constant))
+      if (constExpr->isCast() || constExpr->isGEPWithNoNotionalOverIndexing())
+        return getBasePtr(constExpr->getOperand(0));
   }
   llvm_unreachable("Base pointer type not supported");
 }
