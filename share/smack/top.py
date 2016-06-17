@@ -42,7 +42,7 @@ def results(args):
 
 def inlined_procedures():
   return [
-    '$alloc',
+    #'$alloc',
     '$free',
     '$memset',
     '$memcpy',
