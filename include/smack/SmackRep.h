@@ -101,7 +101,7 @@ public:
   const Expr* lit(const llvm::Value* v);
   const Expr* lit(const llvm::Value* v, unsigned flag);
 
-  std::string getBasePtr(llvm::Value* ptrExpr);
+  std::string getBasePtr(llvm::GetElementPtrInst* I, bool* e);
   const Expr* ptrArith(const llvm::GetElementPtrInst* I);
   const Expr* ptrArith(const llvm::ConstantExpr* CE);
   const Expr* ptrArith(const llvm::Value* p, std::vector< std::pair<llvm::Value*,llvm::Type*> > args);
