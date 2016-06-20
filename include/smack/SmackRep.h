@@ -123,7 +123,8 @@ public:
 
   const Stmt* alloca(llvm::AllocaInst& i);
   unsigned getMemIntrinsicLength(const llvm::ConstantInt* l);
-  void flattenMemcpy(llvm::Type* curType, unsigned curOffset, std::list<unsigned>& indices);
+  void flattenAgTy(llvm::Type* curType, unsigned curOffset, std::list<unsigned>& indices);
+  llvm::Type* getSrcType(const llvm::Value* v);
   const Stmt* memcpy(const llvm::MemCpyInst& msi);
   const Stmt* memset(const llvm::MemSetInst& msi);
   const Expr* load(const llvm::Value* P);

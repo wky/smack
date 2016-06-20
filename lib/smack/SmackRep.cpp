@@ -220,7 +220,7 @@ unsigned SmackRep::getMemIntrinsicLength(const llvm::ConstantInt* l) {
   return l->getValue().getZExtValue();
 }
 
-void SmackRep::flattenMemcpy(llvm::Type* curType, unsigned curOffset, std::list<unsigned>& indices) {
+void SmackRep::flattenAgTy(llvm::Type* curType, unsigned curOffset, std::list<unsigned>& indices) {
   if (auto structType = llvm::dyn_cast<llvm::StructType>(curType)) {
     const llvm::StructLayout* structData = targetData->getStructLayout(structType);
     for (unsigned ti = 0, elemOffset = curOffset; ti < structType->getNumElements(); ++ti) {
@@ -229,7 +229,7 @@ void SmackRep::flattenMemcpy(llvm::Type* curType, unsigned curOffset, std::list<
       if(!elemType->isAggregateType())
         indices.push_back(elemOffset);
       else
-        flattenMemcpy(elemType, elemOffset, indices);
+        flattenAgTy(elemType, elemOffset, indices);
     }
   }
 
@@ -240,9 +240,27 @@ void SmackRep::flattenMemcpy(llvm::Type* curType, unsigned curOffset, std::list<
       if (!elemType->isAggregateType())
         indices.push_back(elemOffset);
       else
-        flattenMemcpy(elemType, elemOffset, indices);
+        flattenAgTy(elemType, elemOffset, indices);
     }
   }
+}
+
+llvm::Type* SmackRep::getSrcType(const llvm::Value* v) {
+  if (auto c = dyn_cast<BitCastInst>(v)) {
+    DEBUG(errs() << "bc : " << *v << "\n");
+    Type *t = c->getSrcTy();
+    assert(t->isPointerTy());
+    return llvm::cast<PointerType>(t)->getElementType();
+  } else if (auto g = dyn_cast<const GlobalVariable>(v)) {
+    return g->getType()->getElementType();
+  } else if (auto ce = dyn_cast<ConstantExpr>(v)) {
+    if (ce->isCast()) {
+      DEBUG(errs() << "bce : " << *ce->getOperand(0) << "\n");
+      Type *t = ce->getOperand(0)->getType();
+      return llvm::cast<PointerType>(t)->getElementType();
+    }
+  }
+  return NULL;
 }
 
 const Stmt* SmackRep::memcpy(const llvm::MemCpyInst& mci) {
@@ -266,34 +284,54 @@ const Stmt* SmackRep::memcpy(const llvm::MemCpyInst& mci) {
     *aln = mci.getArgOperand(3),
     *vol = mci.getArgOperand(4);
 
-  const Value *rdst = mci.getDest();
-  const Value *rsrc = mci.getSource();
+  //const Value *rdst = mci.getDest();
+  //const Value *rsrc = mci.getSource();
 
-  Type *rdst_type = (llvm::cast<llvm::PointerType>(rdst->getType()))->getElementType();
-  Type *rsrc_type = (llvm::cast<llvm::PointerType>(rsrc->getType()))->getElementType();
+  //Type *rdst_type = (llvm::cast<llvm::PointerType>(rdst->getType()))->getElementType();
+  //Type *rsrc_type = (llvm::cast<llvm::PointerType>(rsrc->getType()))->getElementType();
 
-  if (rdst_type->getTypeID() == rsrc_type->getTypeID()
-      && llvm::isa<llvm::ConstantInt>(len)
-      && !SmackOptions::BitPrecise) {
-    std::list <const Stmt*> assigns;
-    unsigned copiedLen = getMemIntrinsicLength(dyn_cast<const llvm::ConstantInt>(len));
+  Type *dt = NULL;
+  Type *st = NULL;
+  dt = getSrcType(dst);
+  st = getSrcType(src);
+  DEBUG(errs() << "id1 : " << dt->getTypeID() << "\n");
+  DEBUG(errs() << "id2 : " << st->getTypeID() << "\n");
 
-    if (auto intType = llvm::dyn_cast<llvm::IntegerType>(rdst_type))
-      if (intType->getBitWidth() >> 3 == copiedLen) {
-        assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r1)), pa(expr(dst), 0UL)),
-          Expr::sel(Expr::id(memReg(r2)), pa(expr(src), 0UL))));
-        return Stmt::compound(assigns);
-      }
+  if (dt && st) {
+    if (dt->getTypeID() == st->getTypeID()
+        && llvm::isa<llvm::ConstantInt>(len)
+        && !SmackOptions::BitPrecise) {
+      std::list <const Stmt*> assigns;
+      assigns.push_back(Stmt::comment(std::string("WARNING: memcpy flattened")));
+      unsigned copiedLen = getMemIntrinsicLength(dyn_cast<const llvm::ConstantInt>(len));
 
-    // TODO: tradeoff (unaligned memory access)
-    if (auto structType = llvm::dyn_cast<llvm::StructType>(rdst_type)) {
-      if (storageSize(rdst_type) == copiedLen) {
-        std::list<unsigned> indices;
-        flattenMemcpy(structType, 0, indices);
-        for (std::list<unsigned>::iterator i = indices.begin(); i != indices.end(); ++i)
-          assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r1)), pa(expr(dst), *i)),
-                Expr::sel(Expr::id(memReg(r2)), pa(expr(src), *i))));
-        return Stmt::compound(assigns);
+      if (auto intType = llvm::dyn_cast<llvm::IntegerType>(dt))
+        if (intType->getBitWidth() >> 3 == copiedLen) {
+          assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r1)), pa(expr(dst), 0UL)),
+                Expr::sel(Expr::id(memReg(r2)), pa(expr(src), 0UL))));
+          return Stmt::compound(assigns);
+        }
+
+      // TODO: tradeoff (unaligned memory access)
+      //if (auto structType = llvm::dyn_cast<llvm::StructType>(dt)) {
+      //  if (storageSize(dt) == copiedLen) {
+      //    std::list<unsigned> indices;
+      //    flattenMemcpy(structType, 0, indices);
+      //    for (std::list<unsigned>::iterator i = indices.begin(); i != indices.end(); ++i)
+      //      assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r1)), pa(expr(dst), *i)),
+      //            Expr::sel(Expr::id(memReg(r2)), pa(expr(src), *i))));
+      //    return Stmt::compound(assigns);
+      //  }
+      //}
+      if (dt->isAggregateType()) {
+        if (storageSize(dt) == copiedLen) {
+          std::list<unsigned> indices;
+          flattenAgTy(dt, 0, indices);
+          for (std::list<unsigned>::iterator i = indices.begin(); i != indices.end(); ++i)
+            assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r1)), pa(expr(dst), *i)),
+                  Expr::sel(Expr::id(memReg(r2)), pa(expr(src), *i))));
+          return Stmt::compound(assigns);
+        }
       }
     }
   }
@@ -365,7 +403,7 @@ const Stmt* SmackRep::memset(const llvm::MemSetInst& msi) {
           Expr::lit(0U)));
       else {
         std::list<unsigned> indices;
-        flattenMemcpy(rdstT, 0, indices);
+        flattenAgTy(rdstT, 0, indices);
         for(std::list<unsigned>::iterator i = indices.begin(); i != indices.end(); ++i)
           assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r)), pa(expr(dst), *i)),
             Expr::lit(0U)));
