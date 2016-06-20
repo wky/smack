@@ -690,42 +690,17 @@ const Expr* SmackRep::lit(const llvm::Value* v) {
     llvm_unreachable("Literal type not supported");
 }
 
-std::string SmackRep::getBasePtr(llvm::GetElementPtrInst* I, bool* e) {
-  Value* pe = I->getPointerOperand();
-  PointerType* pt = dyn_cast<PointerType>(I->getPointerOperandType());
-  const Value* pi = I->getOperand(1);
-
-  if (const ArrayType* at = dyn_cast<const ArrayType>(pt->getElementType()))
-    // pointer to array element is guaranteed to be non-null
-    if (ConstantExpr* ce = dyn_cast<ConstantExpr>(pe))
-      if (ce->isCast())
-        if(const PointerType* cpt = dyn_cast<const PointerType>(ce->getOperand(0)->getType()))
-          if (cpt->getElementType()->isArrayTy())
-            return "1";
-    else
-      return "1";
-
-  if (StructType* st = dyn_cast<StructType>(pt->getElementType())) {
-    Value *bv = pe;
-    assert(pi->getType()->isIntegerTy()
-        && pi->getType()->getPrimitiveSizeInBits() == 32
-        && "Illegal struct index");
-    unsigned offset = dyn_cast<ConstantInt>(pi)->getSExtValue();
-    if (ConstantExpr* ce = dyn_cast<ConstantExpr>(pe))
-      if (ce->isCast() || ce->isGEPWithNoNotionalOverIndexing())
-        bv = ce->getOperand(0);
-    std::stringstream ret;
-    ret << naming.get(*bv);
-    if (offset)
-    ret << " + " << offset * targetData->getTypeStoreSize(st);
-    return ret.str();
-  }
-    
-  if (ConstantPointerNull* null = dyn_cast<ConstantPointerNull>(pe))
+std::string SmackRep::getBasePtr(llvm::Value* ptrExpr) {
+  if(naming.get(*ptrExpr) != "")
+    return naming.get(*ptrExpr);
+  else if (Constant* constant = dyn_cast<Constant>(ptrExpr)) {
+    if (ConstantPointerNull* null = dyn_cast<ConstantPointerNull>(constant))
       return "NULL";
-
-  *e = false;
-  return "";
+    else if (ConstantExpr* constExpr = dyn_cast<ConstantExpr>(constant))
+      if (constExpr->isCast() || constExpr->isGEPWithNoNotionalOverIndexing())
+        return getBasePtr(constExpr->getOperand(0));
+  }
+  llvm_unreachable("Base pointer type not supported");
 }
 
 const Expr* SmackRep::ptrArith(const llvm::GetElementPtrInst* I) {

@@ -62,13 +62,8 @@ void SmackInstGenerator::nameInstruction(llvm::Instruction& inst) {
   std::list<const Attr*> ax = {};
   if (!inst.getType()->isPointerTy())
     ax.push_back(Attr::attr(Naming::AV_SCALAR_TYPE));
-  if (auto gep = dyn_cast<GetElementPtrInst>(&inst)) {
-    bool e = true;
-    std::string b;
-    b = rep.getBasePtr(gep, &e);
-    if (e)
-      ax.push_back(Attr::attr("base", b));
-  }
+  if (auto gep = dyn_cast<GetElementPtrInst>(&inst))
+    ax.push_back(Attr::attr("base", rep.getBasePtr(gep->getPointerOperand())));
   proc.getDeclarations().push_back(
     Decl::variable(naming.get(inst), rep.type(&inst), ax));
 }
