@@ -389,24 +389,28 @@ const Stmt* SmackRep::memset(const llvm::MemSetInst& msi) {
     *aln = msi.getArgOperand(3),
     *vol = msi.getArgOperand(4);
 
-  const Value* rdst = msi.getDest();
-  llvm::Type* rdstT = (llvm::cast<llvm::PointerType>(rdst->getType()))->getElementType();
+  //const Value* rdst = msi.getDest();
+  //llvm::Type* rdstT = (llvm::cast<llvm::PointerType>(rdst->getType()))->getElementType();
+  Type* dt = getSrcType(dst);
 
-  if (llvm::isa<llvm::ConstantInt>(val) && llvm::isa<llvm::ConstantInt>(len)) {
+  if (dt && llvm::isa<llvm::ConstantInt>(val) && llvm::isa<llvm::ConstantInt>(len)) {
     unsigned setLen = getMemIntrinsicLength(dyn_cast<const llvm::ConstantInt>(len));
     unsigned valLit = getMemIntrinsicLength(dyn_cast<const llvm::ConstantInt>(val));
+    std::list<const Stmt*> assigns;
+    assigns.push_back(Stmt::comment(std::string("WARNING: memset flattened")));
     
-    if (setLen == (getSize(rdstT) >> 3) && valLit == 0) {
-      std::list<const Stmt*> assigns;
-      if (!rdstT->isAggregateType())
-        assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r)), pa(expr(dst), 0UL)),
-          Expr::lit(0U)));
+    // corner case: memset a byte array
+    if ((dt->isArrayTy() && llvm::cast<ArrayType>(dt)->getElementType()->isIntegerTy(8)) ||
+      (setLen == (getSize(dt) >> 3) && valLit == 0)) {
+      if (!dt->isAggregateType())
+        assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r)), pa(expr(dst), valLit)),
+          Expr::lit(valLit)));
       else {
         std::list<unsigned> indices;
-        flattenAgTy(rdstT, 0, indices);
+        flattenAgTy(dt, 0, indices);
         for(std::list<unsigned>::iterator i = indices.begin(); i != indices.end(); ++i)
           assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r)), pa(expr(dst), *i)),
-            Expr::lit(0U)));
+            Expr::lit(valLit)));
       }
       return Stmt::compound(assigns);
     }
