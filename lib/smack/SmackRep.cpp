@@ -309,7 +309,7 @@ const Stmt* SmackRep::memcpy(const llvm::MemCpyInst& mci) {
     if (llvm::isa<llvm::ConstantInt>(len) && !SmackOptions::BitPrecise) {
       unsigned copiedLen = getMemIntrinsicLength(dyn_cast<const llvm::ConstantInt>(len));
 
-      if (dt->getTypeID() == st->getTypeID())
+      if (dt->getTypeID() == st->getTypeID()) {
         if (auto intType = llvm::dyn_cast<llvm::IntegerType>(dt))
           if (intType->getBitWidth() >> 3 == copiedLen) {
             assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r1)), pa(expr(dst), 0UL)),
@@ -317,14 +317,15 @@ const Stmt* SmackRep::memcpy(const llvm::MemCpyInst& mci) {
             return Stmt::compound(assigns);
           }
 
-      if (dt->isAggregateType()) {
-        if (storageSize(dt) == copiedLen) {
-          std::list<unsigned> indices;
-          flattenAgTy(dt, 0, indices);
-          for (std::list<unsigned>::iterator i = indices.begin(); i != indices.end(); ++i)
-            assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r1)), pa(expr(dst), *i)),
-                  Expr::sel(Expr::id(memReg(r2)), pa(expr(src), *i))));
-          return Stmt::compound(assigns);
+        if (dt->isAggregateType()) {
+          if (storageSize(dt) == copiedLen) {
+            std::list<unsigned> indices;
+            flattenAgTy(dt, 0, indices);
+            for (std::list<unsigned>::iterator i = indices.begin(); i != indices.end(); ++i)
+              assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r1)), pa(expr(dst), *i)),
+                    Expr::sel(Expr::id(memReg(r2)), pa(expr(src), *i))));
+            return Stmt::compound(assigns);
+          }
         }
       }
       // corner case: copy two byte arrays
