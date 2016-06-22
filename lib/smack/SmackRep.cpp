@@ -259,6 +259,11 @@ llvm::Type* SmackRep::getSrcType(const llvm::Value* v) {
       Type *t = ce->getOperand(0)->getType();
       return llvm::cast<PointerType>(t)->getElementType();
     }
+    if (ce->isGEPWithNoNotionalOverIndexing()) {
+      if (auto sg = dyn_cast<GlobalVariable>(ce->getOperand(0)))
+        if (sg->isConstant())
+          return llvm::cast<PointerType>(sg->getType())->getElementType();
+    }
   }
   return NULL;
 }
@@ -298,31 +303,20 @@ const Stmt* SmackRep::memcpy(const llvm::MemCpyInst& mci) {
   DEBUG(errs() << "id2 : " << st->getTypeID() << "\n");
 
   if (dt && st) {
-    if (dt->getTypeID() == st->getTypeID()
-        && llvm::isa<llvm::ConstantInt>(len)
-        && !SmackOptions::BitPrecise) {
-      std::list <const Stmt*> assigns;
-      assigns.push_back(Stmt::comment(std::string("WARNING: memcpy flattened")));
+    std::list <const Stmt*> assigns;
+    assigns.push_back(Stmt::comment(std::string("WARNING: memcpy flattened")));
+
+    if (llvm::isa<llvm::ConstantInt>(len) && !SmackOptions::BitPrecise) {
       unsigned copiedLen = getMemIntrinsicLength(dyn_cast<const llvm::ConstantInt>(len));
 
-      if (auto intType = llvm::dyn_cast<llvm::IntegerType>(dt))
-        if (intType->getBitWidth() >> 3 == copiedLen) {
-          assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r1)), pa(expr(dst), 0UL)),
-                Expr::sel(Expr::id(memReg(r2)), pa(expr(src), 0UL))));
-          return Stmt::compound(assigns);
-        }
+      if (dt->getTypeID() == st->getTypeID())
+        if (auto intType = llvm::dyn_cast<llvm::IntegerType>(dt))
+          if (intType->getBitWidth() >> 3 == copiedLen) {
+            assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r1)), pa(expr(dst), 0UL)),
+                  Expr::sel(Expr::id(memReg(r2)), pa(expr(src), 0UL))));
+            return Stmt::compound(assigns);
+          }
 
-      // TODO: tradeoff (unaligned memory access)
-      //if (auto structType = llvm::dyn_cast<llvm::StructType>(dt)) {
-      //  if (storageSize(dt) == copiedLen) {
-      //    std::list<unsigned> indices;
-      //    flattenMemcpy(structType, 0, indices);
-      //    for (std::list<unsigned>::iterator i = indices.begin(); i != indices.end(); ++i)
-      //      assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r1)), pa(expr(dst), *i)),
-      //            Expr::sel(Expr::id(memReg(r2)), pa(expr(src), *i))));
-      //    return Stmt::compound(assigns);
-      //  }
-      //}
       if (dt->isAggregateType()) {
         if (storageSize(dt) == copiedLen) {
           std::list<unsigned> indices;
@@ -330,6 +324,19 @@ const Stmt* SmackRep::memcpy(const llvm::MemCpyInst& mci) {
           for (std::list<unsigned>::iterator i = indices.begin(); i != indices.end(); ++i)
             assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r1)), pa(expr(dst), *i)),
                   Expr::sel(Expr::id(memReg(r2)), pa(expr(src), *i))));
+          return Stmt::compound(assigns);
+        }
+      }
+      // corner case: copy two byte arrays
+      // wish I could define closure here
+      if (dt->isArrayTy() && st->isArrayTy()) {
+        if (llvm::cast<ArrayType>(dt)->getElementType()->isIntegerTy(8)
+          && llvm::cast<ArrayType>(st)->getElementType()->isIntegerTy(8)) {
+          // it doesn't matter the size then
+          // don't check bound, llvm2bpl is not supposed to do it
+          for (unsigned i = 0; i < copiedLen; ++i)
+            assigns.push_back(Stmt::assign(Expr::sel(Expr::id(memReg(r1)), pa(expr(dst), i)),
+                  Expr::sel(Expr::id(memReg(r2)), pa(expr(src), i))));
           return Stmt::compound(assigns);
         }
       }
