@@ -193,8 +193,28 @@ void SmackInstGenerator::visitBranchInst(llvm::BranchInst& bi) {
     // Conditional branch
     assert(bi.getNumSuccessors() == 2);
     const Expr* e = Expr::eq(rep.expr(bi.getCondition()), rep.integerLit(1UL,1));
-    targets.push_back({e,bi.getSuccessor(0)});
-    targets.push_back({Expr::not_(e),bi.getSuccessor(1)});
+    const Expr* e1 = e;
+    const Expr* e2 = Expr::not_(e);
+
+    if (llvm::ICmpInst* ci = llvm::dyn_cast<llvm::ICmpInst>(bi.getCondition())) {
+      if (ci->isEquality()
+          && (llvm::isa<llvm::ConstantPointerNull>(ci->getOperand(0))
+           || llvm::isa<llvm::ConstantPointerNull>(ci->getOperand(1)))) {
+          llvm::Value* op1 = ci->getOperand(0);
+          llvm::Value* op2 = ci->getOperand(1);
+          llvm::Value* nop = llvm::isa<llvm::ConstantPointerNull>(op1)? op1 : op2;
+          llvm::Value* nnop = nop == op1? op2 : op1;
+          if (ci->getPredicate() == llvm::CmpInst::ICMP_EQ) {
+            e1 = Expr::eq(rep.expr(nnop), rep.expr(nop));
+            e2 = Expr::not_(e1);
+          } else if (ci->getPredicate() == llvm::CmpInst::ICMP_NE){
+            e2 = Expr::eq(rep.expr(nnop), rep.expr(nop));
+            e1 = Expr::not_(e2);
+          }
+      }
+    }
+    targets.push_back({e1,bi.getSuccessor(0)});
+    targets.push_back({e2,bi.getSuccessor(1)});
   }
   generatePhiAssigns(bi);
   if (bi.getNumSuccessors() > 1)

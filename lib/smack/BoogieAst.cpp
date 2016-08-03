@@ -171,6 +171,12 @@ const Stmt* Stmt::assume(const Expr* e, const Attr* a) {
   return (const AssumeStmt*) s;
 }
 
+const Stmt* Stmt::assume(const Expr* e, std::list<const Attr*> attrs) {
+  AssumeStmt* s = new AssumeStmt(e);
+  s->addAttrs(attrs);
+  return (const AssumeStmt*) s;
+}
+
 const Stmt* Stmt::call(std::string p, std::list<const Expr*> args, std::list<std::string> rets,
     std::list<const Attr*> attrs) {
   return new CallStmt(p, attrs, args, rets);

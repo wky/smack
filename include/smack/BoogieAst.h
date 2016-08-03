@@ -226,6 +226,7 @@ public:
   static const Stmt* assign(std::list<const Expr*> lhs, std::list<const Expr*> rhs);
   static const Stmt* assume(const Expr* e);
   static const Stmt* assume(const Expr* e, const Attr* attr);
+  static const Stmt* assume(const Expr* e, std::list<const Attr*> attrs);
   static const Stmt* call(
     std::string p,
     std::list<const Expr*> args = std::list<const Expr*>(),
@@ -269,6 +270,9 @@ public:
   AssumeStmt(const Expr* e) : Stmt(ASSUME), expr(e) {}
   void add(const Attr* a) {
     attrs.push_back(a);
+  }
+  void addAttrs(std::list<const Attr*> a) {
+    attrs.insert(attrs.end(), a.begin(), a.end());
   }
   void print(std::ostream& os) const;
   static bool classof(const Stmt* S) { return S->getKind() == ASSUME; }
