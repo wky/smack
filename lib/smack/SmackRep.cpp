@@ -899,6 +899,13 @@ const Expr* SmackRep::cmp(unsigned predicate, const llvm::Value* lhs, const llvm
   return Expr::fn(opName(fn, {lhs->getType()}), expr(lhs), expr(rhs));
 }
 
+const Attr* SmackRep::getMemRegionAttr(const Value* v)
+{
+  std::string memRegion = memPath(regions.idx(v));
+  memRegion = "\"" + memRegion + "\"";
+  return Attr::attr("ref", {Expr::id(memRegion)});
+}
+
 ProcDecl* SmackRep::procedure(Function* F, CallInst* CI) {
   assert(F && "Unknown function call.");
   std::string name = naming.get(*F);

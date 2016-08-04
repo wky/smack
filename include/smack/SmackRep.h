@@ -136,6 +136,7 @@ public:
 
   std::list<ProcDecl*> procedure(Function* F);
   ProcDecl* procedure(Function* F, CallInst* C);
+  const Attr* getMemRegionAttr(const Value* v);
 
   // used in Slicing
   unsigned getElementSize(const llvm::Value* v);
