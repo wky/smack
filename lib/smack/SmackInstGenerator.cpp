@@ -474,17 +474,18 @@ void SmackInstGenerator::visitCallInst(llvm::CallInst& ci) {
 
   std::string name = f->hasName() ? f->getName() : "";
 
-  if (f->isDeclaration()) {
-    unsigned i = 0;
-    for (auto &arg : f->getArgumentList()) {
-      if (auto t = llvm::dyn_cast<const PointerType>(arg.getType())) {
-        if (t->getElementType()->isPointerTy()) {
-          emit(Stmt::assume(Expr::lit(true), rep.getMemRegionAttr(ci.getArgOperand(i))));
-        }
-      }
-      ++i;
-    }
-  }
+  //TODO: implement something like try_get_node() first
+  //if (f->isDeclaration()) {
+  //  unsigned i = 0;
+  //  for (auto &arg : f->getArgumentList()) {
+  //    if (auto t = llvm::dyn_cast<const PointerType>(arg.getType())) {
+  //      if (t->getElementType()->isPointerTy()) {
+  //        emit(Stmt::assume(Expr::lit(true), rep.getMemRegionAttr(ci.getArgOperand(i))));
+  //      }
+  //    }
+  //    ++i;
+  //  }
+  //}
 
   if (ci.isInlineAsm()) {
     WARN("unsoundly ignoring inline asm call: " + i2s(ci));

@@ -1214,6 +1214,9 @@ std::list<Decl*> SmackRep::globalDecl(const llvm::GlobalValue* v) {
   unsigned size = 0;
   bool external = false;
 
+  if (llvm::isa<Function>(v))
+    ax.push_back(Attr::attr(Naming::AV_AA_ALLOCATED));
+
   if (const GlobalVariable* g = dyn_cast<const GlobalVariable>(v)) {
     if (g->hasInitializer()) {
       const Constant* init = g->getInitializer();

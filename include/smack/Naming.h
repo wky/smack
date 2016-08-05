@@ -30,6 +30,7 @@ public:
   static const std::string NULL_VAL;
   static const std::string AV_SCALAR_TYPE;
   static const std::string AV_PARTITION;
+  static const std::string AV_AA_ALLOCATED;
 
   static const std::string INIT_FUNC_PREFIX;
   static const std::string DECLARATIONS_PROC;
