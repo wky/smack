@@ -16,6 +16,7 @@ const std::string Naming::FLOAT_TYPE = "float";
 const std::string Naming::PTR_TYPE = "ref";
 const std::string Naming::NULL_VAL = "$0.ref";
 const std::string Naming::AV_SCALAR_TYPE = "scalar";
+const std::string Naming::AV_POINTER_TYPE = "pointer";
 const std::string Naming::AV_PARTITION = "partition";
 const std::string Naming::AV_AA_ALLOCATED = "allocated";
 

@@ -920,6 +920,8 @@ ProcDecl* SmackRep::procedure(Function* F, CallInst* CI) {
     std::list<std::string> argsList;
     if (!A.getType()->isPointerTy())
       argsList.push_back(Attr::attr(Naming::AV_SCALAR_TYPE)->toString());
+    else
+      argsList.push_back(Attr::attr(Naming::AV_POINTER_TYPE)->toString());
     if (F->hasFnAttribute("av-inst")) {
       if (auto t = dyn_cast<const PointerType>(A.getType())) {
         std::string memRegion = memPath(regions.idx(&A));
