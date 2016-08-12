@@ -972,6 +972,8 @@ ProcDecl* SmackRep::procedure(Function* F, CallInst* CI) {
     for (unsigned i = T->getNumParams(); i < CI->getNumArgOperands(); i++) {
       std::list<std::string> ciArgs;
       if (CI->getOperand(i)->getType()->isPointerTy())
+        ciArgs.push_back(Attr::attr(Naming::AV_POINTER_TYPE)->toString());
+      else
         ciArgs.push_back(Attr::attr(Naming::AV_SCALAR_TYPE)->toString());
       params.push_back(std::make_tuple(
         indexedName("p",{i}),
