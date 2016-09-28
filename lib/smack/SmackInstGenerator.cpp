@@ -622,6 +622,23 @@ void SmackInstGenerator::visitCallInst(llvm::CallInst& ci) {
   //   emit(Stmt::assert_(S->getBoogieExpression(naming,rep)));
 
   } else {
+    // special instrumentation for AV
+    for (unsigned i = 0; i < ci.getNumArgOperands(); ++i) {
+      Value* arg = ci.getArgOperand(i);
+      Decl* d;
+      if (LoadInst* si = llvm::dyn_cast<LoadInst>(arg)) {
+        if (GetElementPtrInst* gep = llvm::dyn_cast<GetElementPtrInst>(si->getPointerOperand())) {
+          std::string b = rep.getBasePtr(gep->getPointerOperand());
+          d = proc.getDeclaration(naming.get(*arg));
+          d->addAttr(Attr::attr("Arg_Deref_Base", b));
+        }
+      }
+      //if (GetElementPtrInst* gep = llvm::dyn_cast<GetElementPtrInst>(arg)) {
+      //  std::string b = rep.getBasePtr(gep->getPointerOperand());
+      //  d = proc.getDeclaration(naming.get(*arg));
+      //  d->addAttr(Attr::attr("Arg_Base", b));
+      //}
+    }
     emit(rep.call(f, ci));
   }
 

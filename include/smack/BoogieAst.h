@@ -474,9 +474,18 @@ protected:
   CodeContainer(DeclarationList ds, BlockList bs) : decls(ds), blocks(bs) {}
 public:
   typedef DeclarationList::iterator decl_iterator;
+  typedef DeclarationList::reverse_iterator decl_reverse_iterator;
   decl_iterator decl_begin() { return decls.begin(); }
   decl_iterator decl_end() { return decls.end(); }
+  decl_reverse_iterator decl_rbegin() { return decls.rbegin(); }
+  decl_reverse_iterator decl_rend() { return decls.rend(); }
   DeclarationList& getDeclarations() { return decls; }
+  Decl* getDeclaration(std::string n) {
+    for (decl_reverse_iterator i = decl_rbegin(); i != decl_rend(); ++i)
+      if ((*i)->getName() == n)
+        return *i;
+    return nullptr;
+  }
 
   typedef BlockList::iterator iterator;
   iterator begin() { return blocks.begin(); }
