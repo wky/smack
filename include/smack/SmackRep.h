@@ -101,6 +101,7 @@ public:
   const Expr* lit(const llvm::Value* v);
   const Expr* lit(const llvm::Value* v, unsigned flag);
 
+  const Stmt* sdvNonNullAssume(const Expr* ptr);
   std::string getBasePtr(llvm::Value* ptrExpr);
   const Expr* ptrArith(const llvm::GetElementPtrInst* I);
   const Expr* ptrArith(const llvm::ConstantExpr* CE);

@@ -622,6 +622,22 @@ void SmackInstGenerator::visitCallInst(llvm::CallInst& ci) {
   //   emit(Stmt::assert_(S->getBoogieExpression(naming,rep)));
 
   } else {
+    for (unsigned i = 0; i < ci.getNumArgOperands(); ++i) {
+      Value *arg = ci.getArgOperand(i);
+      // TODO: figure out multiple level of indirections (e.g., foo(x->y->z))
+      if (LoadInst* li = llvm::dyn_cast<LoadInst>(arg)) {
+        const Expr* ptr;
+        if (GetElementPtrInst* gep = llvm::dyn_cast<GetElementPtrInst>(li->getPointerOperand()))
+          ptr = Expr::id(rep.getBasePtr(gep->getPointerOperand()));
+        else
+          ptr = rep.expr(li->getPointerOperand());
+
+        emit(rep.sdvNonNullAssume(ptr));
+      }
+
+      if (GetElementPtrInst* gep = llvm::dyn_cast<GetElementPtrInst>(arg))
+        emit(rep.sdvNonNullAssume(Expr::id(rep.getBasePtr(gep->getPointerOperand()))));
+    }
     emit(rep.call(f, ci));
   }
 

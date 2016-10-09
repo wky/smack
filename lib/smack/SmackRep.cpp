@@ -740,6 +740,10 @@ const Expr* SmackRep::lit(const llvm::Value* v) {
     llvm_unreachable("Literal type not supported");
 }
 
+const Stmt* SmackRep::sdvNonNullAssume(const Expr* ptr) {
+  return Stmt::assume(Expr::neq(ptr, pointerLit(0UL)), Attr::attr("nonnull"));
+}
+
 std::string SmackRep::getBasePtr(llvm::Value* ptrExpr) {
   if(naming.get(*ptrExpr) != "")
     return naming.get(*ptrExpr);
