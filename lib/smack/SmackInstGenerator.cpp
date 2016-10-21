@@ -625,15 +625,17 @@ void SmackInstGenerator::visitCallInst(llvm::CallInst& ci) {
     for (unsigned i = 0; i < ci.getNumArgOperands(); ++i) {
       Value *arg = ci.getArgOperand(i);
       // TODO: figure out multiple level of indirections (e.g., foo(x->y->z))
-      if (LoadInst* li = llvm::dyn_cast<LoadInst>(arg)) {
-        const Expr* ptr;
-        if (GetElementPtrInst* gep = llvm::dyn_cast<GetElementPtrInst>(li->getPointerOperand()))
-          ptr = Expr::id(rep.getBasePtr(gep->getPointerOperand()));
-        else
-          ptr = rep.expr(li->getPointerOperand());
+      // TODO: unsoud for now: e.g. z = x->y; free(x); foo(z);
+      // TODO: what if z is a scalar
+      //if (LoadInst* li = llvm::dyn_cast<LoadInst>(arg)) {
+      //  const Expr* ptr;
+      //  if (GetElementPtrInst* gep = llvm::dyn_cast<GetElementPtrInst>(li->getPointerOperand()))
+      //    ptr = Expr::id(rep.getBasePtr(gep->getPointerOperand()));
+      //  else
+      //    ptr = rep.expr(li->getPointerOperand());
 
-        emit(rep.sdvNonNullAssume(ptr));
-      }
+      //  emit(rep.sdvNonNullAssume(ptr));
+      //}
 
       if (GetElementPtrInst* gep = llvm::dyn_cast<GetElementPtrInst>(arg))
         emit(rep.sdvNonNullAssume(Expr::id(rep.getBasePtr(gep->getPointerOperand()))));
