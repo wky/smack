@@ -145,11 +145,17 @@ public:
   std::string memReg(unsigned i);
   std::string memType(unsigned region);
   std::string memPath(unsigned region);
+  std::string memPath(unsigned region, const llvm::Type* T);
 
   std::list< std::pair< std::string, std::string > > memoryMaps() {
     std::list< std::pair< std::string, std::string > > mms;
-    for (unsigned i=0; i<regions.size(); i++)
+    for (unsigned i=0; i<regions.size(); i++) {
       mms.push_back({memReg(i), memType(i)});
+      if (regions.get(i).isCollapsed()) {
+        mms.push_back({memReg(i)+"."+Naming::AV_SCALAR_TYPE, memType(i)});
+        mms.push_back({memReg(i)+"."+Naming::AV_POINTER_TYPE, memType(i)});
+      }
+    }
     return mms;
   }
 

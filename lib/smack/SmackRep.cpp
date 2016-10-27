@@ -201,6 +201,11 @@ std::string SmackRep::memPath(unsigned region) {
   return memReg(region);
 }
 
+std::string SmackRep::memPath(unsigned region, const llvm::Type* P) {
+  return memPath(region) + "." +
+          (P->isPointerTy()? Naming::AV_POINTER_TYPE : Naming::AV_SCALAR_TYPE);
+}
+
 bool SmackRep::isExternal(const llvm::Value* v) {
   return v->getType()->isPointerTy()
       && !regions.get(regions.idx(v)).isAllocated();
@@ -603,7 +608,8 @@ const Expr* SmackRep::load(const llvm::Value* P) {
   const unsigned R = regions.idx(P);
   bool bytewise = regions.get(R).bytewiseAccess();
   bool singleton = regions.get(R).isSingleton();
-  const Expr* M = Expr::id(memPath(R));
+  bool collapsed = regions.get(R).isCollapsed();
+  const Expr* M = Expr::id(collapsed? memPath(R, T->getElementType()) : memPath(R));
   std::string N = Naming::LOAD + "." + (bytewise ? "bytes." : "") +
     type(T->getElementType());
   return singleton ? M : Expr::fn(N, M, SmackRep::expr(P));
@@ -623,9 +629,10 @@ const Stmt* SmackRep::store(unsigned R, const Type* T,
     const Expr* P, const Expr* V) {
   bool bytewise = regions.get(R).bytewiseAccess();
   bool singleton = regions.get(R).isSingleton();
+  bool collapsed = regions.get(R).isCollapsed();
 
   std::string N = Naming::STORE + "." + (bytewise ? "bytes." : "") + type(T);
-  const Expr* M = Expr::id(memPath(R));
+  const Expr* M = Expr::id(collapsed? memPath(R, T) : memPath(R));
   return Stmt::assign(M, singleton ? V : Expr::fn(N,M,P,V));
 }
 

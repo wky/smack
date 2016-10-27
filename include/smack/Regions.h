@@ -47,6 +47,7 @@ public:
 
   bool isSingleton() const { return singleton; };
   bool isAllocated() const { return allocated; };
+  bool isCollapsed() const { return collapsed; };
   bool bytewiseAccess() const { return bytewise; }
   const Type* getType() const { return type; }
 
