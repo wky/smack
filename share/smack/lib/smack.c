@@ -100,10 +100,24 @@ void __SMACK_dummy(int v) {
 #define LIMIT_8 256
 #define LIMIT_15 32768
 #define LIMIT_16 65536
+#define LIMIT_23 8388608
+#define LIMIT_24 16777216
 #define LIMIT_31 2147483648
 #define LIMIT_32 4294967296
+#define LIMIT_39 549755813888
+#define LIMIT_40 1099511627776
+#define LIMIT_47 140737488355328
+#define LIMIT_48 281474976710656
+#define LIMIT_55 36028797018963968
+#define LIMIT_56 72057594037927936
 #define LIMIT_63 9223372036854775808
 #define LIMIT_64 18446744073709551616
+#define LIMIT_87 154742504910672534362390528
+#define LIMIT_88 309485009821345068724781056
+#define LIMIT_95 39614081257132168796771975168
+#define LIMIT_96 79228162514264337593543950336
+#define LIMIT_127 170141183460469231731687303715884105728
+#define LIMIT_128 340282366920938463463374607431768211456
 
 #define xstr(s) str(s)
 #define str(s) #s
@@ -443,14 +457,28 @@ void __SMACK_decls() {
   D("function {:builtin \"mod\"} $mod(i1: int, i2: int) returns (int);");
   D("function {:builtin \"rem\"} $rem(i1: int, i2: int) returns (int);");
 
+  DECLARE(INLINE_UNARY_OP, i128, $tou, { if i >= 0 && i < LIMIT_128 then i else $mod(i,LIMIT_128) });
+  DECLARE(INLINE_UNARY_OP, i96, $tou, { if i >= 0 && i < LIMIT_96 then i else $mod(i,LIMIT_96) });
+  DECLARE(INLINE_UNARY_OP, i88, $tou, { if i >= 0 && i < LIMIT_88 then i else $mod(i,LIMIT_88) });
   DECLARE(INLINE_UNARY_OP, i64, $tou, { if i >= 0 && i < LIMIT_64 then i else $mod(i,LIMIT_64) });
+  DECLARE(INLINE_UNARY_OP, i56, $tou, { if i >= 0 && i < LIMIT_56 then i else $mod(i,LIMIT_56) });
+  DECLARE(INLINE_UNARY_OP, i48, $tou, { if i >= 0 && i < LIMIT_48 then i else $mod(i,LIMIT_48) });
+  DECLARE(INLINE_UNARY_OP, i40, $tou, { if i >= 0 && i < LIMIT_40 then i else $mod(i,LIMIT_40) });
   DECLARE(INLINE_UNARY_OP, i32, $tou, { if i >= 0 && i < LIMIT_32 then i else $mod(i,LIMIT_32) });
+  DECLARE(INLINE_UNARY_OP, i24, $tou, { if i >= 0 && i < LIMIT_24 then i else $mod(i,LIMIT_24) });
   DECLARE(INLINE_UNARY_OP, i16, $tou, { if i >= 0 && i < LIMIT_16 then i else $mod(i,LIMIT_16) });
   DECLARE(INLINE_UNARY_OP, i8, $tou, { if i >= 0 && i < LIMIT_8 then i else $mod(i,LIMIT_8) });
   DECLARE(INLINE_UNARY_OP, i1, $tou, { if i >= 0 && i < LIMIT_1 then i else $mod(i,LIMIT_1) });
 
+  DECLARE(INLINE_UNARY_OP, i128, $tos, { if i >= -LIMIT_127 && i < LIMIT_127 then i else $mod(i+LIMIT_127,LIMIT_128) - LIMIT_127 });
+  DECLARE(INLINE_UNARY_OP, i96, $tos, { if i >= -LIMIT_95 && i < LIMIT_95 then i else $mod(i+LIMIT_95,LIMIT_96) - LIMIT_95 });
+  DECLARE(INLINE_UNARY_OP, i88, $tos, { if i >= -LIMIT_87 && i < LIMIT_87 then i else $mod(i+LIMIT_87,LIMIT_88) - LIMIT_87 });
   DECLARE(INLINE_UNARY_OP, i64, $tos, { if i >= -LIMIT_63 && i < LIMIT_63 then i else $mod(i+LIMIT_63,LIMIT_64) - LIMIT_63 });
+  DECLARE(INLINE_UNARY_OP, i56, $tos, { if i >= -LIMIT_55 && i < LIMIT_55 then i else $mod(i+LIMIT_55,LIMIT_56) - LIMIT_55 });
+  DECLARE(INLINE_UNARY_OP, i48, $tos, { if i >= -LIMIT_47 && i < LIMIT_47 then i else $mod(i+LIMIT_47,LIMIT_48) - LIMIT_47 });
+  DECLARE(INLINE_UNARY_OP, i40, $tos, { if i >= -LIMIT_39 && i < LIMIT_39 then i else $mod(i+LIMIT_39,LIMIT_40) - LIMIT_39 });
   DECLARE(INLINE_UNARY_OP, i32, $tos, { if i >= -LIMIT_31 && i < LIMIT_31 then i else $mod(i+LIMIT_31,LIMIT_32) - LIMIT_31 });
+  DECLARE(INLINE_UNARY_OP, i24, $tos, { if i >= -LIMIT_23 && i < LIMIT_23 then i else $mod(i+LIMIT_23,LIMIT_24) - LIMIT_23 });
   DECLARE(INLINE_UNARY_OP, i16, $tos, { if i >= -LIMIT_15 && i < LIMIT_15 then i else $mod(i+LIMIT_15,LIMIT_16) - LIMIT_15 });
   DECLARE(INLINE_UNARY_OP, i8, $tos, { if i >= -LIMIT_7 && i < LIMIT_7 then i else $mod(i+LIMIT_7,LIMIT_8) - LIMIT_7 });
   DECLARE(INLINE_UNARY_OP, i1, $tos, { if i >= -1 && i < 1 then i else $mod(i+1,LIMIT_1) - 1 });
