@@ -355,7 +355,7 @@ float fmaxf(float x, float y) {
 
 float fmodf(float x, float y) {
   float result = remainderf(fabsf(x), fabsf(y));
-  if (signbitf(result)) 
+  if (signbitf(result))
     result += fabsf(y);
   return copysignf(result, x);
 }
@@ -391,13 +391,13 @@ int __iszerof(float x) {
   __SMACK_code("@ := if $float.zero(dtf(@)) then 1bv32 else 0bv32;", ret, x);
   return ret;
 }
-  
+
 int __isinff(float x) {
   int ret = __VERIFIER_nondet_int();
   __SMACK_code("@ := if $float.infinite(dtf(@)) then 1bv32 else 0bv32;", ret, x);
   return ret;
 }
-  
+
 int __isnanf(float x) {
   int ret = __VERIFIER_nondet_int();
   __SMACK_code("@ := if $float.nan(dtf(@)) then 1bv32 else 0bv32;", ret, x);
@@ -579,13 +579,13 @@ int __iszero(double x) {
   __SMACK_code("@ := if $double.zero(@) then 1bv32 else 0bv32;", ret, x);
   return ret;
 }
-  
+
 int __isinf(double x) {
   int ret = __VERIFIER_nondet_int();
   __SMACK_code("@ := if $double.infinite(@) then 1bv32 else 0bv32;", ret, x);
   return ret;
 }
-  
+
 int __isnan(double x) {
   int ret = __VERIFIER_nondet_int();
   __SMACK_code("@ := if $double.nan(@) then 1bv32 else 0bv32;", ret, x);
@@ -1440,21 +1440,21 @@ void __SMACK_decls() {
   DECLARE_EACH_FLOAT_TYPE(FPBUILTIN_BINARY_OP, $frem, fp.rem)
   D("function $ffalse.bvfloat(f1:bvfloat, f2:bvfloat) returns (i1);");
   D("function $ftrue.bvfloat(f1:bvfloat, f2:bvfloat) returns (i1);");
-  
+
   D("function {:builtin \"fp.abs\"} $float.abs(bvfloat) returns (bvfloat);");
   D("function {:builtin \"fp.fma\"} $float.fma(bvfloat, bvfloat, bvfloat) returns (bvfloat);");
   D("function {:builtin \"fp.sqrt\"} $float.sqrt(bvfloat) returns (bvfloat);");
   D("function {:builtin \"fp.rem\"} $float.rem(bvfloat, bvfloat) returns (bvfloat);");
   D("function {:builtin \"fp.min\"} $float.min(bvfloat, bvfloat) returns (bvfloat);");
   D("function {:builtin \"fp.max\"} $float.max(bvfloat, bvfloat) returns (bvfloat);");
-  
+
   D("function {:builtin \"fp.abs\"} $double.abs(bvdouble) returns (bvdouble);");
   D("function {:builtin \"fp.fma\"} $double.fma(bvdouble, bvdouble, bvdouble) returns (bvdouble);");
   D("function {:builtin \"fp.sqrt\"} $double.sqrt(bvdouble) returns (bvdouble);");
   D("function {:builtin \"fp.rem\"} $double.rem(bvdouble, bvdouble) returns (bvdouble);");
   D("function {:builtin \"fp.min\"} $double.min(bvdouble, bvdouble) returns (bvdouble);");
   D("function {:builtin \"fp.max\"} $double.max(bvdouble, bvdouble) returns (bvdouble);");
-  
+
   D("function {:builtin \"fp.isNormal\"} $float.normal(bvfloat) returns (bool);");
   D("function {:builtin \"fp.isSubnormal\"} $float.subnormal(bvfloat) returns (bool);");
   D("function {:builtin \"fp.isZero\"} $float.zero(bvfloat) returns (bool);");
@@ -1540,7 +1540,7 @@ void __SMACK_decls() {
   D("function {:builtin \"(_ fp.to_ubv 24) RNE\"} ftubv24(bvfloat) returns (bv24);");
   D("function {:builtin \"(_ fp.to_ubv 16) RNE\"} ftubv16(bvfloat) returns (bv16);");
   D("function {:builtin \"(_ fp.to_ubv 8) RNE\"} ftubv8(bvfloat) returns (bv8);");
-  
+
   // Add truncation for default casts to int
   D("function {:builtin \"(_ fp.to_sbv 128) RTZ\"} ftsi128(bvfloat) returns (bv128);");
   D("function {:builtin \"(_ fp.to_sbv 96) RTZ\"} ftsi96(bvfloat) returns (bv96);");
@@ -1553,7 +1553,7 @@ void __SMACK_decls() {
   D("function {:builtin \"(_ fp.to_sbv 24) RTZ\"} ftsi24(bvfloat) returns (bv24);");
   D("function {:builtin \"(_ fp.to_sbv 16) RTZ\"} ftsi16(bvfloat) returns (bv16);");
   D("function {:builtin \"(_ fp.to_sbv 8) RTZ\"} ftsi8(bvfloat) returns (bv8);");
-  
+
   DECLARE(INLINE_CONVERSION, bvfloat, bv128, $fp2si, {ftsi128(i)});
   DECLARE(INLINE_CONVERSION, bvfloat, bv128, $fp2ui, {ftubv128(i)});
   DECLARE(INLINE_CONVERSION, bv128, bvfloat, $si2fp, {sbv128tf(i)});
@@ -1598,20 +1598,20 @@ void __SMACK_decls() {
   DECLARE(INLINE_CONVERSION, bvfloat, bv8, $fp2ui, {ftubv8(i)});
   DECLARE(INLINE_CONVERSION, bv8, bvfloat, $si2fp, {sbv8tf(i)});
   DECLARE(INLINE_CONVERSION, bv8, bvfloat, $ui2fp, {ubv8tf(i)});
-  
+
   D("function {:builtin \"(_ fp.to_sbv 32) RNA\"} $float.round(bvfloat) returns (bv32);");
   D("function {:builtin \"(_ fp.to_sbv 32) RTN\"} $float.floor(bvfloat) returns (bv32);");
   D("function {:builtin \"(_ fp.to_sbv 32) RTP\"} $float.ceil(bvfloat) returns (bv32);");
   D("function {:builtin \"(_ fp.to_sbv 32) RTZ\"} $float.trunc(bvfloat) returns (bv32);");
-  
+
   #if BUILD_64
     D("function {:builtin \"(_ fp.to_sbv 64) RNA\"} $float.lround(bvfloat) returns (bv64);");
-  
+
   #else
     D("function {:builtin \"(_ fp.to_sbv 32) RNA\"} $float.lround(bvfloat) returns (bv32);");
 
   #endif
-  
+
   //This isn't the correct implementation, so change as needed
   D("function {:inline} $ford.bvdouble(f1:bvdouble, f2:bvdouble) returns (bv1);");
   D("function {:inline} $funo.bvdouble(f1:bvdouble, f2:bvdouble) returns (bv1);");
@@ -1663,7 +1663,7 @@ void __SMACK_decls() {
   D("function {:builtin \"(_ fp.to_ubv 24) RNE\"} dtubv24(bvdouble) returns (bv24);");
   D("function {:builtin \"(_ fp.to_ubv 16) RNE\"} dtubv16(bvdouble) returns (bv16);");
   D("function {:builtin \"(_ fp.to_ubv 8) RNE\"} dtubv8(bvdouble) returns (bv8);");
-  
+
   // Add truncation for default casts to int
   D("function {:builtin \"(_ fp.to_sbv 128) RTZ\"} dtsi128(bvdouble) returns (bv128);");
   D("function {:builtin \"(_ fp.to_sbv 96) RTZ\"} dtsi96(bvdouble) returns (bv96);");
@@ -1676,7 +1676,7 @@ void __SMACK_decls() {
   D("function {:builtin \"(_ fp.to_sbv 24) RTZ\"} dtsi24(bvdouble) returns (bv24);");
   D("function {:builtin \"(_ fp.to_sbv 16) RTZ\"} dtsi16(bvdouble) returns (bv16);");
   D("function {:builtin \"(_ fp.to_sbv 8) RTZ\"} dtsi8(bvdouble) returns (bv8);");
-  
+
   DECLARE(INLINE_CONVERSION, bvdouble, bv128, $fp2si, {dtsi128(i)});
   DECLARE(INLINE_CONVERSION, bvdouble, bv128, $fp2ui, {dtubv128(i)});
   DECLARE(INLINE_CONVERSION, bv128, bvdouble, $si2fp, {sbv128td(i)});
@@ -1721,21 +1721,21 @@ void __SMACK_decls() {
   DECLARE(INLINE_CONVERSION, bvdouble, bv8, $fp2ui, {dtubv8(i)});
   DECLARE(INLINE_CONVERSION, bv8, bvdouble, $si2fp, {sbv8td(i)});
   DECLARE(INLINE_CONVERSION, bv8, bvdouble, $ui2fp, {ubv8td(i)});
-  
+
   D("function {:builtin \"(_ fp.to_sbv 64) RNE\"} $double.round.rne(bvdouble) returns (bv64);");
   D("function {:builtin \"(_ fp.to_sbv 64) RNA\"} $double.round.rna(bvdouble) returns (bv64);");
   D("function {:builtin \"(_ fp.to_sbv 64) RTN\"} $double.floor(bvdouble) returns (bv64);");
   D("function {:builtin \"(_ fp.to_sbv 64) RTP\"} $double.ceil(bvdouble) returns (bv64);");
   D("function {:builtin \"(_ fp.to_sbv 64) RTZ\"} $double.trunc(bvdouble) returns (bv64);");
-  
+
   #if BUILD_64
     D("function {:builtin \"(_ fp.to_sbv 64) RNA\"} $double.lround.rne(bvdouble) returns (bv64);");
-  
+
   #else
     D("function {:builtin \"(_ fp.to_sbv 32) RNA\"} $double.lround.rna(bvdouble) returns (bv32);");
 
   #endif
-  
+
 #endif
 
   // Memory Model
@@ -1932,7 +1932,7 @@ void __SMACK_decls() {
 
 #if MEMORY_SAFETY
 
-  D("implementation __SMACK_check_memory_safety(p: ref, size: i64)\n"
+  D("implementation __SMACK_check_memory_safety(p: ref, size: ref)\n"
     "{\n"
     "  assert {:valid_deref} $Alloc[$base(p)] == true;\n"
     "  assert {:valid_deref} $sle.ref.bool($base(p), p);\n"
