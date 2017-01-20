@@ -761,7 +761,12 @@ std::string SmackRep::getBasePtr(llvm::Value* ptrExpr) {
       if (constExpr->isCast() || constExpr->isGEPWithNoNotionalOverIndexing())
         return getBasePtr(constExpr->getOperand(0));
   }
-  llvm_unreachable("Base pointer type not supported");
+  // give up further extacting base pointer:
+  // return the base expression instead
+  std::ostringstream ss;
+  expr(ptrExpr)->print(ss);
+  return ss.str();
+  //llvm_unreachable("Base pointer type not supported");
 }
 
 const Expr* SmackRep::ptrArith(const llvm::GetElementPtrInst* I) {
