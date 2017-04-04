@@ -290,7 +290,7 @@ def verify_bpl_svcomp(args):
 
   if not "forall" in bpl:
     heurTrace += "No quantifiers detected. Setting z3 relevancy to 0.\n"
-    corral_command += ["/bopt:z3opt:smt.relevancy=0"]
+    corral_command += ["/bopt:z3opt:SMT.RELEVANCY=0"]
 
   if args.bit_precise:
     heurTrace += "--bit-precise flag passed - enabling bit vectors mode.\n"
