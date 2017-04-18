@@ -186,6 +186,7 @@ def verify_bpl_svcomp(args):
     if args.bit_precise:
       x = "bopt:" if args.verifier != 'boogie' else ""
       boogie_command += ["/%sproverOpt:OPTIMIZE_FOR_BV=true" % x]
+      boogie_command += ["/%sz3opt:SMT.RELEVANCY=0" % x]
       boogie_command += ["/%sz3opt:SMT.BV.ENABLE_INT2BV=true" % x]
       boogie_command += ["/%sboolControlVC" % x]
 
