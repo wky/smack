@@ -67,7 +67,7 @@ void SmackInstGenerator::nameInstruction(llvm::Instruction& inst) {
   );
 }
 
-void SmackInstGenerator::annotate(llvm::Instruction& I, Block* B) {
+void SmackInstGenerator::annotate(llvm::Instruction& I, Block* B, bool duplicate) {
 
   // do not generate sourceloc from calls to llvm.debug since
   // those point to variable declaration lines and such
@@ -82,8 +82,14 @@ void SmackInstGenerator::annotate(llvm::Instruction& I, Block* B) {
   if (SmackOptions::SourceLocSymbols && I.getMetadata("dbg")) {
     const DebugLoc DL = I.getDebugLoc();
     auto *scope = cast<DIScope>(DL.getScope());
-    B->addStmt(Stmt::annot(Attr::attr("sourceloc", scope->getFilename().str(),
-      DL.getLine(), DL.getCol())));
+    std::list<const Attr*> attrs({Attr::attr("sourceloc", scope->getFilename().str(),
+      DL.getLine(), DL.getCol())});
+    if (!duplicate && (isa<CallInst>(&I) || isa<InvokeInst>(&I))) {
+      const Attr* attr = rep.generateSDVCallAnnotation(&I);
+      if (attr)
+        attrs.push_back(attr);
+    }
+    B->addStmt(Stmt::annot(attrs));
   }
 
   //https://stackoverflow.com/questions/22138947/reading-metadata-from-instruction
@@ -132,7 +138,7 @@ void SmackInstGenerator::visitBasicBlock(llvm::BasicBlock& bb) {
       if (llvm::isa<llvm::DbgInfoIntrinsic>(I))
         continue;
       if (I.getDebugLoc()) {
-        annotate(I, currBlock);
+        annotate(I, currBlock, true);
         break;
       }
     }

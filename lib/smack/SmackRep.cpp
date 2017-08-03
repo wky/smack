@@ -913,6 +913,27 @@ const Stmt* SmackRep::call(llvm::Function* f, const llvm::User& ci) {
   return Stmt::call(procName(f, ci), args, rets);
 }
 
+const Attr* SmackRep::generateSDVCallAnnotation(const llvm::Instruction* i)
+{
+  const Function* caller = i->getFunction();
+  const Function* callee = nullptr;
+
+  if (auto ci = dyn_cast<CallInst>(i)) {
+    callee = ci->getCalledFunction();
+    if (!callee) {
+      assert(ci->getCalledValue() && "Called value is null");
+      callee = llvm::cast<Function>(ci->getCalledValue()->stripPointerCasts());
+    }
+  } else if (auto ii = dyn_cast<InvokeInst>(i))
+    callee = ii->getCalledFunction();
+
+  if (callee && caller->hasName() && callee->hasName()) {
+    return Attr::attr("print",
+      "Call \\\""+caller->getName().str()+"\\\" \\\""+callee->getName().str()+"\\\"");
+  }
+  return nullptr;
+}
+
 std::string SmackRep::code(llvm::CallInst& ci) {
 
   llvm::Function* f = ci.getCalledFunction();
