@@ -35,7 +35,7 @@ private:
                          std::vector<std::pair<const Expr*, llvm::BasicBlock*> > target);
   void processInstruction(llvm::Instruction& i);
   void nameInstruction(llvm::Instruction& i);
-  void annotate(llvm::Instruction& i, Block* b);
+  void annotate(llvm::Instruction& i, Block* b, bool duplicate=false);
 
   const Stmt* recordProcedureCall(llvm::Value* V, std::list<const Attr*> attrs);
 

@@ -118,6 +118,7 @@ public:
 
   const Expr* arg(llvm::Function* f, unsigned pos, llvm::Value* v);
   const Stmt* call(llvm::Function* f, const llvm::User& u);
+  const Attr* generateSDVCallAnnotation(const llvm::Instruction* i);
   std::string code(llvm::CallInst& ci);
 
   const Stmt* alloca(llvm::AllocaInst& i);
