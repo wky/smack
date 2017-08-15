@@ -111,6 +111,7 @@ bool StructRet::runOnModule(Module& M) {
         if(!RI)
           continue;
         LoadInst *LI = dyn_cast<LoadInst>(RI->getOperand(0));
+        RI->print(errs());
         assert(LI && "Return should be preceded by a load instruction");
         IRBuilder<> Builder(RI);
         Builder.CreateMemCpy(fargs.at(0),

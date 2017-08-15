@@ -172,7 +172,7 @@ int main(int argc, char **argv) {
   pass_manager.add(llvm::createDeadCodeEliminationPass());
   pass_manager.add(new smack::CodifyStaticInits());
   if (!Modular) {
-    pass_manager.add(new smack::RemoveDeadDefs());
+    //NOTE pass_manager.add(new smack::RemoveDeadDefs());
   }
   pass_manager.add(new llvm::MergeArrayGEP());
   // pass_manager.add(new smack::SimplifyLibCalls());
