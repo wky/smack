@@ -84,10 +84,13 @@ void SmackInstGenerator::annotate(llvm::Instruction& I, Block* B, bool duplicate
     auto *scope = cast<DIScope>(DL.getScope());
     std::list<const Attr*> attrs({Attr::attr("sourceloc", scope->getFilename().str(),
       DL.getLine(), DL.getCol())});
-    if (!duplicate && (isa<CallInst>(&I) || isa<InvokeInst>(&I))) {
-      const Attr* attr = rep.generateSDVCallAnnotation(&I);
-      if (attr)
-        attrs.push_back(attr);
+    if (!duplicate) {
+      if (isa<CallInst>(&I) || isa<InvokeInst>(&I)) {
+        const Attr* attr = rep.generateSDVCallAnnotation(&I);
+        if (attr)
+          attrs.push_back(attr);
+      } else if (isa<ReturnInst>(&I))
+          attrs.push_back(rep.generateSDVReturnAnnotation());
     }
     B->addStmt(Stmt::annot(attrs));
   }

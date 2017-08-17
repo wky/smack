@@ -934,6 +934,11 @@ const Attr* SmackRep::generateSDVCallAnnotation(const llvm::Instruction* i)
   return nullptr;
 }
 
+const Attr* SmackRep::generateSDVReturnAnnotation()
+{
+  return Attr::attr("print", "Return");
+}
+
 std::string SmackRep::code(llvm::CallInst& ci) {
 
   llvm::Function* f = ci.getCalledFunction();
