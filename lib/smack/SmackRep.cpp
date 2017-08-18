@@ -927,7 +927,7 @@ const Attr* SmackRep::generateSDVCallAnnotation(const llvm::Instruction* i)
   } else if (auto ii = dyn_cast<InvokeInst>(i))
     callee = ii->getCalledFunction();
 
-  if (callee && caller->hasName() && callee->hasName()) {
+  if (callee && !callee->empty() && caller->hasName() && callee->hasName()) {
     return Attr::attr("print",
       "Call \\\""+caller->getName().str()+"\\\" \\\""+callee->getName().str()+"\\\"");
   }
